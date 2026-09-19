@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Remote Patient Monitoring</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:#061426;
+    color:white;
+    font-family:Arial;
+}
+
+.container{
+    width:94%;
+    max-width:1000px;
+    margin:30px auto;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.sub{
+    color:#91a5ba;
+    font-size:13px;
+}
+
+.live{
+    color:#00e676;
+}
+
+.patient{
+    background:#0d1d32;
+    border:1px solid #244a70;
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:20px;
+}
+
+.values{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+}
+
+.box{
+    background:#0d1d32;
+    border:1px solid #244a70;
+    border-radius:14px;
+    padding:18px;
+    text-align:center;
+}
+
+.box span{
+    color:#aebfd2;
+    font-size:12px;
+}
+
+.box b{
+    display:block;
+    font-size:21px;
+    margin-top:10px;
+}
+
+.risk{
+    margin-top:20px;
+    padding:25px;
+    background:#0d1d32;
+    border:1px solid #244a70;
+    border-radius:14px;
+    text-align:center;
+}
+
+#risk{
+    font-size:42px;
+    margin:10px;
+}
+
+.high{
+    color:#ff4757;
+}
+
+.low{
+    color:#00e676;
+}
+
+.update{
+    margin-top:20px;
+    background:#08182b;
+    padding:14px;
+    border-radius:10px;
+}
+
+@media(max-width:700px){
+    .values{
+        grid-template-columns:1fr 1fr;
+    }
+}
+
+@media(max-width:450px){
+    .values{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+    <div>
+        <h1>🌐 Remote Patient Monitoring</h1>
+        <div class="sub">
+            Remote real-time patient health dashboard
+        </div>
+    </div>
+
+    <b class="live">● LIVE</b>
+</div>
+
+
+<div class="patient">
+
+<h2>Patient Information</h2>
+
+<p>
+Patient Name:
+<b id="name">--</b>
+</p>
+
+<p>
+Age:
+<b id="age">--</b>
+</p>
+
+<p>
+Sex:
+<b id="sex">--</b>
+</p>
+
+</div>
+
+
+<div class="values">
+
+<div class="box">
+<span>Heart Rate</span>
+<b id="hr">--</b>
+</div>
+
+<div class="box">
+<span>Blood Pressure</span>
+<b id="bp">--</b>
+</div>
+
+<div class="box">
+<span>SpO₂</span>
+<b id="spo2">--</b>
+</div>
+
+<div class="box">
+<span>Temperature</span>
+<b id="temp">--</b>
+</div>
+
+<div class="box">
+<span>Respiratory Rate</span>
+<b id="resp">--</b>
+</div>
+
+</div>
+
+
+<div class="risk">
+
+<h2>Current Risk Assessment</h2>
+
+<div id="risk">0%</div>
+
+<h2 id="status">WAITING</h2>
+
+</div>
+
+
+<div class="update">
+
+Connection:
+<b class="live">● CONNECTED</b>
+
+<br><br>
+
+Last Updated:
+<b id="time">--</b>
+
+</div>
+
+</div>
+
+
+<script>
+
+function loadRemoteData(){
+
+fetch("/health-data")
+
+.then(response => response.json())
+
+.then(data => {
+
+document.getElementById("name").innerText =
+data.name;
+
+document.getElementById("age").innerText =
+data.age;
+
+document.getElementById("sex").innerText =
+data.sex;
+
+document.getElementById("hr").innerText =
+data.heart_rate
+? data.heart_rate + " bpm"
+: "--";
+
+document.getElementById("bp").innerText =
+data.bp;
+
+document.getElementById("spo2").innerText =
+data.spo2
+? data.spo2 + " %"
+: "--";
+
+document.getElementById("temp").innerText =
+data.temperature
+? data.temperature + " °C"
+: "--";
+
+document.getElementById("resp").innerText =
+data.respiratory_rate
+? data.respiratory_rate + " /min"
+: "--";
+
+
+let risk = Number(data.risk) || 0;
+
+document.getElementById("risk").innerText =
+risk + "%";
+
+document.getElementById("status").innerText =
+data.status;
+
+document.getElementById("time").innerText =
+data.time;
+
+
+if(risk >= 50){
+
+document.getElementById("risk").className="high";
+document.getElementById("status").className="high";
+
+}else{
+
+document.getElementById("risk").className="low";
+document.getElementById("status").className="low";
+
+}
+
+});
+
+}
+
+loadRemoteData();
+
+setInterval(loadRemoteData,3000);
+
+</script>
+
+</body>
+</html>

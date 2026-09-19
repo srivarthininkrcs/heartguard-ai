@@ -1,0 +1,166 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #061322;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.header {
+    padding: 30px 8%;
+    background: #081a2d;
+    border-bottom: 1px solid #1b3854;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+.header p {
+    color: #91a8bd;
+}
+
+.header span {
+    color: #25dfa0;
+    font-size: 12px;
+}
+
+.main {
+    width: 90%;
+    max-width: 1100px;
+    margin: 40px auto;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 25px;
+}
+
+.input-card,
+.result-card {
+    background: #0b1c30;
+    border: 1px solid #1d3b58;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 15px 40px #0005;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 14px;
+    margin: 8px 0;
+    background: #071525;
+    color: white;
+    border: 1px solid #29445f;
+    border-radius: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 15px;
+    border: 0;
+    border-radius: 10px;
+    background: #12aee0;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.result-head {
+    display: flex;
+    justify-content: space-between;
+}
+
+.result-head b {
+    color: #20df98;
+}
+
+.score {
+    text-align: center;
+    margin: 25px;
+}
+
+.score strong {
+    display: block;
+    font-size: 58px;
+    color: #29c9ff;
+}
+
+.score small {
+    color: #8da5bb;
+}
+
+.prediction {
+    text-align: center;
+    padding: 20px;
+    background: #102a43;
+    border-radius: 15px;
+}
+
+.prediction h1 {
+    color: #ff596b;
+}
+
+.prediction p {
+    color: #91a8bd;
+}
+
+.info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.info div {
+    background: #071525;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.info small {
+    display: block;
+    color: #7892aa;
+    font-size: 10px;
+}
+
+.info b {
+    display: block;
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+.factors {
+    margin-top: 20px;
+}
+
+.factors span {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 4px;
+    background: #34232b;
+    border-radius: 20px;
+    color: #ff9aa6;
+    font-size: 12px;
+}
+
+.note {
+    color: #657e96;
+    text-align: center;
+    font-size: 10px;
+    margin-top: 22px;
+}
+
+@media(max-width:800px) {
+    .main {
+        grid-template-columns: 1fr;
+    }
+
+    .info {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Advanced Health Analytics</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#061426;color:white;font-family:Arial}
+.container{width:94%;max-width:1200px;margin:25px auto}
+h1{margin-bottom:5px}
+.sub{color:#91a5ba;font-size:13px}
+
+.grid{
+display:grid;
+grid-template-columns:1.4fr 1fr;
+gap:18px;
+margin-top:20px
+}
+
+.card{
+background:#0d1d32;
+border:1px solid #244a70;
+border-radius:14px;
+padding:18px
+}
+
+.ecg{
+height:220px;
+background:#08182b;
+border-radius:10px;
+padding:10px
+}
+
+#ecgCanvas{
+width:100%;
+height:180px
+}
+
+.rows{
+display:flex;
+justify-content:space-between;
+padding:11px 5px;
+border-bottom:1px solid #20364d
+}
+
+.normal{color:#00e676}
+.high{color:#ff4757}
+.warn{color:#ffb020}
+
+.suggestion{
+padding:12px;
+margin:8px 0;
+background:#08182b;
+border-radius:8px
+}
+
+.alert{
+padding:12px;
+margin:8px 0;
+background:#291827;
+border-left:4px solid #ff4757;
+border-radius:6px
+}
+
+.chart{
+height:260px
+}
+
+.back{
+display:inline-block;
+margin-top:20px;
+padding:11px 22px;
+background:#1677ff;
+color:white;
+text-decoration:none;
+border-radius:8px
+}
+
+@media(max-width:800px){
+.grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>❤️ Advanced Health Analytics</h1>
+<div class="sub">Real-time monitoring, risk factors and intelligent health insights</div>
+
+<div class="grid">
+
+<!-- 1 LIVE ECG -->
+<div class="card">
+<h2>📈 Live ECG Monitor</h2>
+<div class="sub">Electrocardiogram Monitoring</div>
+
+<div class="ecg">
+<canvas id="ecgCanvas"></canvas>
+</div>
+
+<p>
+Heart Rate:
+<b class="high">{{ data.heart_rate }} bpm</b>
+</p>
+
+<p>Monitoring Status:
+<b class="normal">● ACTIVE</b>
+</p>
+</div>
+
+
+<!-- 2 KEY RISK FACTORS -->
+<div class="card">
+<h2>⚠️ Key Risk Factors</h2>
+
+<div class="rows">
+<span>Heart Rate</span>
+<b>{{ data.heart_rate }} bpm</b>
+</div>
+
+<div class="rows">
+<span>Blood Pressure</span>
+<b>{{ data.bp }}</b>
+</div>
+
+<div class="rows">
+<span>SpO₂</span>
+<b>{{ data.spo2 }} %</b>
+</div>
+
+<div class="rows">
+<span>Temperature</span>
+<b>{{ data.temperature }} °C</b>
+</div>
+
+<div class="rows">
+<span>Respiratory Rate</span>
+<b>{{ data.respiratory_rate }} /min</b>
+</div>
+</div>
+
+
+<!-- 3 AI SUGGESTIONS -->
+<div class="card">
+<h2>🤖 AI Suggestions</h2>
+
+<div class="suggestion">
+🩺 <b>Health Monitoring</b><br>
+Monitor vital parameters regularly.
+</div>
+
+<div class="suggestion">
+💧 <b>Healthy Lifestyle</b><br>
+Maintain proper hydration and balanced nutrition.
+</div>
+
+<div class="suggestion">
+🏃 <b>Regular Activity</b><br>
+Follow suitable daily physical activity.
+</div>
+
+<div class="suggestion">
+😌 <b>Stress Management</b><br>
+Maintain adequate rest and relaxation.
+</div>
+</div>
+
+
+<!-- 4 RECENT ALERTS -->
+<div class="card">
+<h2>🚨 Recent Alerts</h2>
+
+{% if data.status == "HIGH RISK" %}
+<div class="alert">
+🔴 High Risk Assessment<br>
+<small>Current assessment indicates elevated risk.</small>
+</div>
+{% else %}
+<div class="suggestion">
+🟢 No High-Risk Alert<br>
+<small>Current assessment is lower risk.</small>
+</div>
+{% endif %}
+
+<div class="suggestion">
+🕒 Last Assessment: {{ data.time }}
+</div>
+</div>
+
+
+<!-- 5 RISK TREND -->
+<div class="card"> 
+<h2>📊 Risk Trend</h2> 
+<div class="sub">Last 7 Assessments</div> 
+ 
+<div class="chart"> 
+<canvas id="riskChart"></canvas> 
+</div> 
+</div>
+
+</div>
+
+<a href="/" class="back">← Back to Dashboard</a>
+
+</div>
+
+<div id="riskData"
+     data-risk="{{ data.risk|default(0) }}"
+     style="display:none;">
+</div>
+
+
+<script>
+
+/* DEMO ECG WAVEFORM */
+
+const canvas=document.getElementById("ecgCanvas");
+const ctx=canvas.getContext("2d");
+
+let x=0;
+let points=[];
+
+function drawECG(){
+
+canvas.width=canvas.clientWidth;
+canvas.height=180;
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+ctx.beginPath();
+
+for(let i=0;i<canvas.width;i++){
+
+let y=90;
+
+let p=i%120;
+
+if(p>20 && p<25) y-=15;
+if(p>=25 && p<30) y+=55;
+if(p>=30 && p<35) y-=100;
+if(p>=35 && p<45) y+=25;
+
+ctx.lineTo(i,y);
+}
+
+ctx.strokeStyle="#00e676";
+ctx.lineWidth=2;
+ctx.stroke();
+
+}
+
+drawECG();
+setInterval(drawECG,500);
+
+
+/* RISK TREND */
+
+fetch("/risk-trend")
+.then(res => res.json())
+.then(values => {
+
+    new Chart(document.getElementById("riskChart"), {
+        type: "line",
+
+        data: {
+            labels: values.map((_, i) => "Assessment " + (i + 1)),
+
+            datasets: [{
+                label: "Risk %",
+                data: values,
+                borderWidth: 3,
+                pointRadius: 5,
+                tension: 0.4,
+                fill: false
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            scales: {
+                y: {
+                    min: 0,
+                    max: 100,
+                    ticks: {
+                        callback: value => value + "%"
+                    }
+                }
+            }
+        }
+    });
+
+});
+
+</script>
+
+</body>
+</html>

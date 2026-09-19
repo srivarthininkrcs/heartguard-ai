@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HeartGuard AI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="header">
+    <h1>♥ HeartGuard AI</h1>
+    <p>Real-Time Machine Learning Health Risk Analysis</p>
+    <span>● ML MODEL ACTIVE</span>
+</div>
+
+<div class="main">
+
+    <div class="input-card">
+        <h2>Patient Assessment</h2>
+
+        <form method="POST">
+
+            <input type="number" name="age"
+                   placeholder="Age" required>
+
+            <select name="sex">
+                <option value="1">Male</option>
+                <option value="0">Female</option>
+            </select>
+
+            <select name="cp">
+                <option value="0">Chest Pain Type 0</option>
+                <option value="1">Chest Pain Type 1</option>
+                <option value="2">Chest Pain Type 2</option>
+                <option value="3">Chest Pain Type 3</option>
+            </select>
+
+            <input type="number" name="bp"
+                   placeholder="Blood Pressure" required>
+
+            <input type="number" name="chol"
+                   placeholder="Cholesterol" required>
+
+            <button type="submit">RUN AI ANALYSIS →</button>
+
+        </form>
+    </div>
+
+
+    {% if result %}
+
+    <div class="result-card">
+
+        <div class="result-head">
+            <h2>AI Risk Assessment</h2>
+            <b>● LIVE</b>
+        </div>
+
+        <div class="score">
+            <strong>{{ probability }}%</strong>
+            <small>Risk Score</small>
+        </div>
+
+        <div class="prediction">
+            <h1>{{ result }}</h1>
+            <p>Machine Learning prediction completed</p>
+        </div>
+
+        <div class="info">
+
+            <div>
+                <small>MODEL</small>
+                <b>Random Forest</b>
+            </div>
+
+            <div>
+                <small>STATUS</small>
+                <b>✓ Analysis Complete</b>
+            </div>
+
+            <div>
+                <small>CONFIDENCE</small>
+                <b>{{ probability }}%</b>
+            </div>
+
+        </div>
+
+        <div class="factors">
+            <h3>Key Risk Indicators</h3>
+
+            {% if factors %}
+                {% for factor in factors %}
+                    <span>⚠ {{ factor }}</span>
+                {% endfor %}
+            {% else %}
+                <span>✓ No major indicators detected</span>
+            {% endif %}
+
+        </div>
+
+        <p class="note">
+            ML-assisted risk prediction for educational use.
+            Not a medical diagnosis.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

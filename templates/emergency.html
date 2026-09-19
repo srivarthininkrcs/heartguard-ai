@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Emergency Alert System</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family: Arial, sans-serif;
+
+            background: #071426;
+            color: white;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        .header p {
+            color: #9fb3c8;
+            margin-top: 8px;
+        }
+
+        /* Emergency Status */
+
+        .status-card {
+            padding: 30px;
+
+            border-radius: 18px;
+
+            background: #10233d;
+
+            border: 1px solid #294d73;
+
+            text-align: center;
+
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+
+        .status-icon {
+            width: 75px;
+            height: 75px;
+
+            margin: 0 auto 18px;
+
+            border-radius: 50%;
+
+            background: #123c2a;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 38px;
+
+            color: #00e676;
+        }
+
+        .status-card h2 {
+            margin: 10px 0;
+
+            color: #00e676;
+        }
+
+        .status-card p {
+            color: #b8c7d8;
+        }
+
+        /* Status */
+
+        .status {
+            display: inline-block;
+
+            margin-top: 10px;
+
+            padding: 8px 18px;
+
+            border-radius: 20px;
+
+            background: #123c2a;
+
+            color: #00e676;
+
+            font-weight: bold;
+        }
+
+        /* Health values */
+
+        .health-grid {
+            display: grid;
+
+            grid-template-columns: repeat(4, 1fr);
+
+            gap: 15px;
+
+            margin-top: 20px;
+        }
+
+        .health-card {
+            padding: 18px;
+
+            background: #0d1d32;
+
+            border-radius: 12px;
+
+            text-align: center;
+
+            border: 1px solid #203a58;
+        }
+
+        .health-card span {
+            display: block;
+
+            color: #9fb3c8;
+
+            margin-bottom: 8px;
+        }
+
+        .health-card strong {
+            font-size: 20px;
+        }
+
+        /* Alert information */
+
+        .alert-info {
+            margin-top: 20px;
+
+            padding: 18px;
+
+            background: #0d1d32;
+
+            border-radius: 12px;
+
+            border: 1px solid #203a58;
+        }
+
+        .alert-info p {
+            margin: 8px 0;
+
+            color: #c5d2df;
+        }
+
+        /* Back button */
+
+        .back-button {
+            display: block;
+
+            width: fit-content;
+
+            margin: 25px auto 0;
+
+            padding: 12px 22px;
+
+            border-radius: 8px;
+
+            background: #1677ff;
+
+            color: white;
+
+            text-decoration: none;
+
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background: #0d5dcc;
+        }
+
+        /* Mobile */
+
+        @media (max-width: 700px) {
+
+            .health-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .header h1 {
+                font-size: 25px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="container">
+
+        <!-- Header -->
+
+        <div class="header">
+
+            <h1>🚨 Emergency Alert System</h1>
+
+            <p>
+                Automated health condition monitoring and alert status
+            </p>
+
+        </div>
+
+
+        <!-- Emergency Status -->
+
+        <div class="status-card">
+
+            <div class="status-icon">
+                ✓
+            </div>
+
+            <h2 id="statusTitle">
+                NO EMERGENCY DETECTED
+            </h2>
+
+            <p id="statusMessage">
+                Patient health parameters are currently within
+                the monitoring range.
+            </p>
+
+            <div class="status" id="status">
+                ● NORMAL
+            </div>
+
+        </div>
+
+
+        <!-- Current Health Values -->
+
+        <div class="health-grid">
+
+            <div class="health-card">
+
+                <span>Heart Rate</span>
+
+                <strong id="heartRate">
+                    --
+                </strong>
+
+            </div>
+
+
+            <div class="health-card">
+
+                <span>SpO₂</span>
+
+                <strong id="spo2">
+                    --
+                </strong>
+
+            </div>
+
+
+            <div class="health-card">
+
+                <span>Blood Pressure</span>
+
+                <strong id="bloodPressure">
+                    --
+                </strong>
+
+            </div>
+
+
+            <div class="health-card">
+
+                <span>Temperature</span>
+
+                <strong id="temperature">
+                    --
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- Alert Information -->
+
+        <div class="alert-info">
+
+            <p>
+                <strong>Alert Type:</strong>
+                <span id="alertType">
+                    No active alert
+                </span>
+            </p>
+
+            <p>
+                <strong>Last Checked:</strong>
+                <span id="lastChecked">
+                    --
+                </span>
+            </p>
+
+            <p>
+                <strong>System:</strong>
+                <span>
+                    Real-Time Monitoring Active
+                </span>
+            </p>
+
+        </div>
+
+
+        <!-- Back -->
+
+        <a href="/monitor" class="back-button">
+            ← Back to Real-Time Monitoring
+        </a>
+
+    </div>
+
+
+    <script>
+
+        function checkEmergency() {
+
+            fetch("/health-data")
+
+                .then(response => response.json())
+
+                .then(data => {
+
+                    // Display values
+
+                    document.getElementById("heartRate").innerText =
+                        data.heart_rate + " bpm";
+
+                    document.getElementById("spo2").innerText =
+                        data.spo2 + " %";
+
+                    document.getElementById("bloodPressure").innerText =
+                        data.bp;
+
+                    document.getElementById("temperature").innerText =
+                        data.temperature + " °C";
+
+
+                    document.getElementById("lastChecked").innerText =
+                        data.time;
+
+
+                    // Blood pressure
+
+                    const bp =
+                        data.bp.split("/");
+
+                    const systolic =
+                        parseInt(bp[0]);
+
+                    const diastolic =
+                        parseInt(bp[1]);
+
+
+                    let alerts = [];
+
+
+                    // Heart rate
+
+                    if (data.heart_rate > 120) {
+
+                        alerts.push(
+                            "High Heart Rate"
+                        );
+
+                    }
+
+
+                    // SpO2
+
+                    if (data.spo2 < 90) {
+
+                        alerts.push(
+                            "Low SpO₂"
+                        );
+
+                    }
+
+
+                    // Blood pressure
+
+                    if (
+                        systolic >= 180 ||
+                        diastolic >= 120
+                    ) {
+
+                        alerts.push(
+                            "Very High Blood Pressure"
+                        );
+
+                    }
+
+
+                    // Temperature
+
+                    if (data.temperature >= 39) {
+
+                        alerts.push(
+                            "High Temperature"
+                        );
+
+                    }
+
+
+                    const statusCard =
+                        document.querySelector(".status-card");
+
+                    const icon =
+                        document.querySelector(".status-icon");
+
+                    const title =
+                        document.getElementById("statusTitle");
+
+                    const message =
+                        document.getElementById("statusMessage");
+
+                    const status =
+                        document.getElementById("status");
+
+                    const alertType =
+                        document.getElementById("alertType");
+
+
+                    // 🚨 Emergency
+
+                    if (data.status === "HIGH RISK" || alerts.length > 0) {
+
+                        statusCard.style.border =
+                            "1px solid #ff4757";
+
+                        icon.style.background =
+                            "#5c1820";
+
+                        icon.style.color =
+                            "#ff4757";
+
+                        icon.innerText = "🚨";
+
+                        title.innerText =
+                            "EMERGENCY CONDITION DETECTED";
+
+                        title.style.color =
+                            "#ff4757";
+
+                        message.innerText =
+                            "Abnormal health parameter detected. Please seek appropriate medical attention.";
+
+                        status.style.background =
+                            "#5c1820";
+
+                        status.style.color =
+                            "#ff4757";
+
+                        status.innerText =
+                            "● CRITICAL";
+
+                        alertType.innerText =
+                            alerts.join(" | ");
+
+                    }
+
+
+                    // Normal
+
+                    else {
+
+                        statusCard.style.border =
+                            "1px solid #294d73";
+
+                        icon.style.background =
+                            "#123c2a";
+
+                        icon.style.color =
+                            "#00e676";
+
+                        icon.innerText = "✓";
+
+                        title.innerText =
+                            "NO EMERGENCY DETECTED";
+
+                        title.style.color =
+                            "#00e676";
+
+                        message.innerText =
+                            "Patient health parameters are currently within the monitoring range.";
+
+                        status.style.background =
+                            "#123c2a";
+
+                        status.style.color =
+                            "#00e676";
+
+                        status.innerText =
+                            "● NORMAL";
+
+                        alertType.innerText =
+                            "No active alert";
+
+                    }
+
+                })
+
+                .catch(error => {
+
+                    console.log(
+                        "Health data error:",
+                        error
+                    );
+
+                });
+
+        }
+
+
+        // Check every 3 seconds
+
+        checkEmergency();
+
+        setInterval(
+            checkEmergency,
+            3000
+        );
+
+    </script>
+
+</body>
+
+</html>

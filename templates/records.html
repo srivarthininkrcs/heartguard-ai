@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patient Records</title>
+    <style>
+        body{
+            font-family:Arial;
+            background:#f4f4f4;
+            padding:30px;
+        }
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+        }
+        th,td{
+            border:1px solid #ddd;
+            padding:10px;
+            text-align:center;
+        }
+        th{
+            background:#ff6699;
+            color:white;
+        }
+        h2{
+            text-align:center;
+            color:#ff6699;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Heart Disease Prediction Records</h2>
+
+<table>
+<tr>
+<th>ID</th>
+<th>Age</th>
+<th>Gender</th>
+<th>Chest Pain</th>
+<th>Blood Pressure</th>
+<th>Cholesterol</th>
+<th>Result</th>
+</tr>
+
+{% for row in rows %}
+<tr>
+<td>{{row[0]}}</td>
+<td>{{row[1]}}</td>
+<td>
+    {% if row[2] == 1 %}
+        Male
+    {% else %}
+        Female
+    {% endif %}
+</td>
+<td>{{row[3]}}</td>
+<td>{{row[4]}}</td>
+<td>{{row[5]}}</td>
+<td>{{row[6]}}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+</body>
+</html>

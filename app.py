@@ -123,7 +123,11 @@ def monitor():
         conn.commit()
         conn.close()
 
-    return render_template("monitor.html", data=latest)
+    return render_template(
+        "monitor.html",
+        data=latest,
+        patient_id=patient_id
+    )
 
 @app.route("/details")
 def details():
@@ -137,24 +141,15 @@ def emergency():
 def health_data():
     patient_id = request.args.get("patient_id")
 
-    data = patients_records.get(patient_id)
+    # Remote page uses patient_id
+    if patient_id:
+        data = patients_records.get(patient_id)
 
-    if data is None:
-        return jsonify({
-            "name": "--",
-            "age": "--",
-            "sex": "--",
-            "heart_rate": 0,
-            "bp": "--",
-            "spo2": 0,
-            "temperature": 0,
-            "respiratory_rate": 0,
-            "risk": 0,
-            "status": "WAITING",
-            "time": "--"
-        })
+        if data is not None:
+            return jsonify(data)
 
-    return jsonify(data)
+    # Main monitoring page uses latest
+    return jsonify(latest)
 
 @app.route("/remote-monitor")
 def remote_monitor():

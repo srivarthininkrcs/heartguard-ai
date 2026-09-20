@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+import uuid
 from datetime import datetime
 import sqlite3
 import os
@@ -48,18 +49,13 @@ latest = {
     "time": "--"
 }
 
-patients = []
-
-@app.route("/")
-def home():
-    return render_template("monitor.html", data=latest)
-
+patients_records = {}
 
 @app.route("/monitor", methods=["GET", "POST"])
 def monitor():
 
     if request.method == "POST":
-
+        patient_id = request.form["patient_id"]
         hr = int(request.form["heart_rate"])
         bp = request.form["bp"]
         spo2 = int(request.form["spo2"])
@@ -99,6 +95,7 @@ def monitor():
             "status": status,
             "time": datetime.now().strftime("%H:%M:%S")
         })
+        patients_records[patient_id] = latest.copy()
 
         # Emergency SMS
         if risk >= 50:
@@ -136,10 +133,58 @@ def details():
 def emergency():
     return render_template("emergency.html", data=latest)
 
-
 @app.route("/health-data")
 def health_data():
-    return jsonify(latest)
+    patient_id = request.args.get("patient_id")
+
+    data = patients_records.get(patient_id)
+
+    if data is None:
+        return jsonify({
+            "name": "--",
+            "age": "--",
+            "sex": "--",
+            "heart_rate": 0,
+            "bp": "--",
+            "spo2": 0,
+            "temperature": 0,
+            "respiratory_rate": 0,
+            "risk": 0,
+            "status": "WAITING",
+            "time": "--"
+        })
+
+    return jsonify(data)
+
+@app.route("/remote-monitor")
+def remote_monitor():
+    patient_id = request.args.get("patient_id")
+
+    data = patients_records.get(patient_id)
+
+    if data is None:
+        data = {
+            "name": "--",
+            "phone": "--",
+            "age": "--",
+            "sex": "--",
+            "heart_rate": 0,
+            "bp": "--",
+            "spo2": 0,
+            "temperature": 0,
+            "respiratory_rate": 0,
+            "risk": 0,
+            "status": "WAITING",
+            "time": "--"
+        }
+
+    return render_template(
+        "remote_monitor.html",
+        data=data,
+        patient_id=patient_id
+    )
+
+
 
 @app.route("/risk-trend")
 def risk_trend():
@@ -344,16 +389,51 @@ def download_report():
 
     return render_template("monitor.html", data=latest)
 
-@app.route("/remote-monitor")
-def remote_monitor():
-    return render_template("remote_monitor.html", data=latest)
+@app.route("/")
+def home():
+    patient_id = uuid.uuid4().hex
+
+    blank_data = {
+        "name": "--",
+        "phone": "--",
+        "age": "--",
+        "sex": "--",
+        "heart_rate": 0,
+        "bp": "--",
+        "spo2": 0,
+        "temperature": 0,
+        "respiratory_rate": 0,
+        "risk": 0,
+        "status": "WAITING",
+        "time": "--"
+    }
+
+    return render_template(
+        "monitor.html",
+        data=blank_data,
+        patient_id=patient_id
+    )
 
 @app.route("/dashboard")
 def dashboard():
-    total = len(patients)
-    high = sum(1 for p in patients if p["status"] == "HIGH RISK")
-    low = sum(1 for p in patients if p["status"] == "LOW RISK")
-    return render_template("dashboard.html", total=total, high=high, low=low)
+    total = len(patients_records)
+
+    high = sum(
+        1 for p in patients_records.values()
+        if p["status"] == "HIGH RISK"
+    )
+
+    low = sum(
+        1 for p in patients_records.values()
+        if p["status"] == "LOW RISK"
+    )
+
+    return render_template(
+        "dashboard.html",
+        total=total,
+        high=high,
+        low=low
+    )
 
 if __name__ == "__main__":
     app.run()

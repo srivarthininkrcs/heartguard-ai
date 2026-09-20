@@ -97,7 +97,6 @@ font-weight:bold
 <input name="spo2" type="number" placeholder="SpO₂ (%)" required>
 <input name="temperature" type="number" step="0.1" placeholder="Temperature °C" required>
 <input name="respiratory_rate" type="number" placeholder="Respiratory Rate" required>
-<input type="hidden" name="patient_id" value="{{ patient_id }}">
 </div>
 
 <button type="submit">START LIVE ASSESSMENT</button>
@@ -158,7 +157,7 @@ risk assessment and early alert support.
 
 <script>
 function updateData(){
-fetch("/health-data")
+fetch("/health-data?patient_id={{ patient_id }}")
 .then(r=>r.json())
 .then(d=>{
 

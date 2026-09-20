@@ -215,7 +215,7 @@ Last Updated:
 
 function loadRemoteData(){
 
-fetch("/health-data")
+fetch("/health-data?patient_id={{ patient_id }}")
 
 .then(response => response.json())
 

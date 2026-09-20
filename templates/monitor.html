@@ -81,6 +81,7 @@ font-weight:bold
 <div class="sub">Enter patient parameters</div>
 
 <form method="POST" action="/monitor">
+    <input type="hidden" name="patient_id" value="{{ patient_id }}">
 <div class="formgrid">
 <input name="name" placeholder="Patient Name" required>
 <input name="phone" placeholder="Emergency Phone" required>
@@ -96,6 +97,7 @@ font-weight:bold
 <input name="spo2" type="number" placeholder="SpO₂ (%)" required>
 <input name="temperature" type="number" step="0.1" placeholder="Temperature °C" required>
 <input name="respiratory_rate" type="number" placeholder="Respiratory Rate" required>
+<input type="hidden" name="patient_id" value="{{ patient_id }}">
 </div>
 
 <button type="submit">START LIVE ASSESSMENT</button>
@@ -148,9 +150,7 @@ risk assessment and early alert support.
 
 <a href="/dashboard" class="dashboard-btn">📊 VIEW DASHBOARD</a>
 
-<a href="https://heartguard-ai-1-5puu.onrender.com/remote-monitor"
-   target="_blank"
-   class="dashboard-btn">
+<a href="/remote-monitor?patient_id={{ patient_id }}" target="_blank" class="dashboard-btn">
     🌐 REMOTE PATIENT MONITORING
 </a>
 

@@ -344,6 +344,10 @@ def download_report():
 
     return render_template("monitor.html", data=latest)
 
+@app.route("/remote-monitor")
+def remote_monitor():
+    return render_template("remote_monitor.html", data=latest)
+
 @app.route("/dashboard")
 def dashboard():
     total = len(patients)

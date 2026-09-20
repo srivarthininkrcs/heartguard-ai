@@ -342,23 +342,6 @@ def download_report():
         mimetype="application/pdf"
     )
 
-@app.route("/")
-def home():
-    latest.update({
-        "name": "--",
-        "phone": "--",
-        "age": "--",
-        "sex": "--",
-        "heart_rate": 0,
-        "bp": "--",
-        "spo2": 0,
-        "temperature": 0,
-        "respiratory_rate": 0,
-        "risk": 0,
-        "status": "WAITING",
-        "time": "--"
-    })
-
     return render_template("monitor.html", data=latest)
 
 @app.route("/dashboard")

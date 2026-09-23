@@ -4,6 +4,7 @@ from datetime import datetime
 import sqlite3
 import os
 from twilio.rest import Client
+import json
 from flask import send_file
 from reportlab.pdfgen import canvas
 from io import BytesIO
@@ -53,6 +54,7 @@ patients_records = {}
 
 @app.route("/monitor", methods=["GET", "POST"])
 def monitor():
+    patient_id = request.args.get("patient_id") or uuid.uuid4().hex
 
     if request.method == "POST":
         patient_id = request.form["patient_id"]
@@ -97,7 +99,7 @@ def monitor():
         })
         patients_records[patient_id] = latest.copy()
 
-        # Emergency SMS
+      # Emergency WhatsApp Alert
         if risk >= 50:
 
             if not client:
@@ -106,15 +108,19 @@ def monitor():
             else:
                 try:
                     message = client.messages.create(
-                       body=f"🚨 HEARTGUARD AI ALERT 🚨\nPatient: {latest['name']}\nRisk: {risk}%\nStatus: {status}",
-                       from_=TWILIO_NUMBER,
-                       to=latest["phone"]
+                    from_=f"whatsapp:{TWILIO_NUMBER}",
+                    to=f"whatsapp:{latest['phone']}",
+                    content_sid="HXb5b62575e6e4ff6129ad7c8efe1f983e",
+                    content_variables=json.dumps({
+                        "1": datetime.now().strftime("%d/%m/%Y"),
+                        "2": f"HeartGuard AI Risk: {risk}%"
+                    })
                 )
 
-                    print("SMS SENT:", message.sid)
+                    print("WHATSAPP SENT:", message.sid)
 
                 except Exception as e:
-                    print("SMS ERROR:", e)
+                    print("WHATSAPP ERROR:", e)
         conn = sqlite3.connect("database.db")
         conn.execute(
             "INSERT INTO patients (name, risk, status, time) VALUES (?, ?, ?, ?)",

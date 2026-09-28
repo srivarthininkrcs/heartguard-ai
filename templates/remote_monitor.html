@@ -1,292 +1,1256 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1">
 
 <title>Remote Patient Monitoring</title>
 
 <style>
+
 *{
     box-sizing:border-box;
 }
 
 body{
+
     margin:0;
+
     background:#061426;
+
     color:white;
+
     font-family:Arial;
 }
 
 .container{
+
     width:94%;
+
     max-width:1000px;
+
     margin:30px auto;
 }
 
 .header{
+
     display:flex;
+
     justify-content:space-between;
+
     align-items:center;
+
     margin-bottom:25px;
 }
 
 .sub{
+
     color:#91a5ba;
+
     font-size:13px;
 }
 
 .live{
+
     color:#00e676;
 }
 
 .patient{
+
     background:#0d1d32;
+
     border:1px solid #244a70;
+
     border-radius:14px;
+
     padding:18px;
+
     margin-bottom:20px;
 }
 
 .values{
+
     display:grid;
+
     grid-template-columns:repeat(5,1fr);
+
     gap:12px;
 }
 
 .box{
+
     background:#0d1d32;
+
     border:1px solid #244a70;
+
     border-radius:14px;
+
     padding:18px;
+
     text-align:center;
 }
 
 .box span{
+
     color:#aebfd2;
+
     font-size:12px;
 }
 
 .box b{
+
     display:block;
+
     font-size:21px;
+
     margin-top:10px;
 }
 
 .risk{
+
     margin-top:20px;
+
     padding:25px;
+
     background:#0d1d32;
+
     border:1px solid #244a70;
+
     border-radius:14px;
+
     text-align:center;
 }
 
 #risk{
+
     font-size:42px;
+
     margin:10px;
 }
 
 .high{
+
     color:#ff4757;
 }
 
 .low{
+
     color:#00e676;
 }
 
 .update{
+
     margin-top:20px;
+
     background:#08182b;
+
     padding:14px;
+
     border-radius:10px;
 }
 
-@media(max-width:700px){
-    .values{
-        grid-template-columns:1fr 1fr;
-    }
+
+/* ===================================================== */
+/* MONITORING LINK */
+/* ===================================================== */
+
+.monitor-link{
+
+    margin-top:20px;
+
+    background:#0d1d32;
+
+    border:1px solid #244a70;
+
+    border-radius:14px;
+
+    padding:20px;
 }
 
-@media(max-width:450px){
+.monitor-link h2{
+
+    margin-top:0;
+
+    color:#ffffff;
+}
+
+.link-row{
+
+    display:flex;
+
+    gap:10px;
+
+    align-items:center;
+}
+
+.link-input{
+
+    flex:1;
+
+    padding:12px;
+
+    border-radius:8px;
+
+    border:1px solid #365878;
+
+    background:#08182b;
+
+    color:white;
+
+    font-size:14px;
+}
+
+.copy-button{
+
+    padding:12px 18px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#00a8ff;
+
+    color:white;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+}
+
+.copy-button:hover{
+
+    background:#008ed6;
+}
+
+.copy-status{
+
+    margin-top:10px;
+
+    color:#00e676;
+
+    font-size:14px;
+}
+
+
+/* ===================================================== */
+/* DOCTOR RESPONSE */
+/* ===================================================== */
+
+.doctor-response{
+
+    margin-top:20px;
+
+    background:#0d1d32;
+
+    border:1px solid #244a70;
+
+    border-radius:14px;
+
+    padding:20px;
+}
+
+.doctor-response h2{
+
+    margin-top:0;
+
+    color:#ffffff;
+}
+
+.doctor-response textarea{
+
+    width:100%;
+
+    min-height:130px;
+
+    padding:14px;
+
+    border-radius:10px;
+
+    border:1px solid #365878;
+
+    background:#08182b;
+
+    color:white;
+
+    font-size:15px;
+
+    resize:vertical;
+
+    outline:none;
+}
+
+.doctor-response textarea:focus{
+
+    border-color:#1677ff;
+}
+
+.send-button{
+
+    margin-top:15px;
+
+    padding:12px 22px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#1677ff;
+
+    color:white;
+
+    font-size:15px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+}
+
+.send-button:hover{
+
+    background:#0d5dcc;
+}
+
+.response-status{
+
+    margin-top:12px;
+
+    color:#00e676;
+
+    font-size:14px;
+}
+
+
+/* ===================================================== */
+/* SAVED DOCTOR RESPONSE */
+/* ===================================================== */
+
+.saved-response{
+
+    margin-top:20px;
+
+    background:#08182b;
+
+    border:1px solid #244a70;
+
+    border-radius:10px;
+
+    padding:16px;
+}
+
+.saved-response h3{
+
+    margin-top:0;
+
+    color:#00e676;
+}
+
+.saved-response p{
+
+    color:white;
+
+    line-height:1.6;
+
+    white-space:pre-wrap;
+}
+
+.saved-response small{
+
+    color:#91a5ba;
+}
+
+
+@media(max-width:700px){
+
     .values{
+
+        grid-template-columns:1fr 1fr;
+    }
+
+    .link-row{
+
+        flex-direction:column;
+
+        align-items:stretch;
+    }
+
+    .copy-button{
+
+        width:100%;
+    }
+
+}
+
+
+@media(max-width:450px){
+
+    .values{
+
         grid-template-columns:1fr;
     }
+
 }
+
 </style>
 
 </head>
 
+
 <body>
+
 
 <div class="container">
 
+
+<!-- ===================================================== -->
+<!-- HEADER -->
+<!-- ===================================================== -->
+
 <div class="header">
+
     <div>
-        <h1>🌐 Remote Patient Monitoring</h1>
+
+        <h1>
+            🌐 Remote Patient Monitoring
+        </h1>
+
         <div class="sub">
+
             Remote real-time patient health dashboard
+
         </div>
+
     </div>
 
-    <b class="live">● LIVE</b>
+    <b class="live">
+        ● LIVE
+    </b>
+
 </div>
 
+
+<!-- ===================================================== -->
+<!-- PATIENT INFORMATION -->
+<!-- ===================================================== -->
 
 <div class="patient">
 
-<h2>Patient Information</h2>
+    <h2>
+        Patient Information
+    </h2>
 
-<p>
-Patient Name:
-<b id="name">--</b>
-</p>
 
-<p>
-Age:
-<b id="age">--</b>
-</p>
+    <p>
 
-<p>
-Sex:
-<b id="sex">--</b>
-</p>
+        Patient Name:
+
+        <b id="name">
+            --
+        </b>
+
+    </p>
+
+
+    <p>
+
+        Age:
+
+        <b id="age">
+            --
+        </b>
+
+    </p>
+
+
+    <p>
+
+        Sex:
+
+        <b id="sex">
+            --
+        </b>
+
+    </p>
 
 </div>
 
+
+<!-- ===================================================== -->
+<!-- HEALTH VALUES -->
+<!-- ===================================================== -->
 
 <div class="values">
 
-<div class="box">
-<span>Heart Rate</span>
-<b id="hr">--</b>
+
+    <div class="box">
+
+        <span>
+            Heart Rate
+        </span>
+
+        <b id="hr">
+            --
+        </b>
+
+    </div>
+
+
+    <div class="box">
+
+        <span>
+            Blood Pressure
+        </span>
+
+        <b id="bp">
+            --
+        </b>
+
+    </div>
+
+
+    <div class="box">
+
+        <span>
+            SpO₂
+        </span>
+
+        <b id="spo2">
+            --
+        </b>
+
+    </div>
+
+
+    <div class="box">
+
+        <span>
+            Temperature
+        </span>
+
+        <b id="temp">
+            --
+        </b>
+
+    </div>
+
+
+    <div class="box">
+
+        <span>
+            Respiratory Rate
+        </span>
+
+        <b id="resp">
+            --
+        </b>
+
+    </div>
+
+
 </div>
 
-<div class="box">
-<span>Blood Pressure</span>
-<b id="bp">--</b>
-</div>
 
-<div class="box">
-<span>SpO₂</span>
-<b id="spo2">--</b>
-</div>
-
-<div class="box">
-<span>Temperature</span>
-<b id="temp">--</b>
-</div>
-
-<div class="box">
-<span>Respiratory Rate</span>
-<b id="resp">--</b>
-</div>
-
-</div>
-
+<!-- ===================================================== -->
+<!-- RISK ASSESSMENT -->
+<!-- ===================================================== -->
 
 <div class="risk">
 
-<h2>Current Risk Assessment</h2>
+    <h2>
+        Current Risk Assessment
+    </h2>
 
-<div id="risk">0%</div>
+    <div id="risk">
+        0%
+    </div>
 
-<h2 id="status">WAITING</h2>
+    <h2 id="status">
+        WAITING
+    </h2>
 
 </div>
 
+
+<!-- ===================================================== -->
+<!-- MONITORING LINK -->
+<!-- ===================================================== -->
+
+<div class="monitor-link">
+
+    <h2>
+        🔗 Patient Monitoring Link
+    </h2>
+
+
+    <p>
+        Copy this link and send it to the doctor through WhatsApp.
+    </p>
+
+
+    <div class="link-row">
+
+        <input
+            type="text"
+            id="monitoringLink"
+            class="link-input"
+            readonly
+        >
+
+
+        <button
+            type="button"
+            class="copy-button"
+            onclick="copyMonitoringLink()"
+        >
+
+            🔗 COPY MONITORING LINK
+
+        </button>
+
+    </div>
+
+
+    <div
+        id="copyStatus"
+        class="copy-status"
+    ></div>
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- DOCTOR RESPONSE -->
+<!-- ===================================================== -->
+
+<div class="doctor-response">
+
+    <h2>
+        👨‍⚕️ Doctor Response
+    </h2>
+
+
+    <textarea
+        id="doctorMessage"
+        placeholder="Enter doctor's recommendation or response to the patient..."
+    ></textarea>
+
+
+    <button
+        class="send-button"
+        type="button"
+        onclick="sendDoctorResponse()"
+    >
+
+        📤 SEND RESPONSE
+
+    </button>
+
+
+    <div
+        id="responseStatus"
+        class="response-status"
+    ></div>
+
+
+    <!-- ================================================= -->
+    <!-- SAVED RESPONSE -->
+    <!-- ================================================= -->
+
+    <div class="saved-response">
+
+        <h3>
+            📋 Patient View – Doctor Response
+        </h3>
+
+
+        <p id="savedDoctorResponse">
+            No doctor response yet.
+        </p>
+
+
+        <small id="savedDoctorResponseTime"></small>
+
+    </div>
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- CONNECTION -->
+<!-- ===================================================== -->
 
 <div class="update">
 
-Connection:
-<b class="live">● CONNECTED</b>
+    Connection:
 
-<br><br>
+    <b class="live">
+        ● CONNECTED
+    </b>
 
-Last Updated:
-<b id="time">--</b>
+
+    <br>
+    <br>
+
+
+    Last Updated:
+
+    <b id="time">
+        --
+    </b>
 
 </div>
+
 
 </div>
 
 
 <script>
 
+
+// =====================================================
+// STORE PATIENT DATA
+// =====================================================
+
+let patientData = {};
+
+
+// =====================================================
+// SET MONITORING LINK
+// =====================================================
+
+
+function setMonitoringLink() {
+
+    const patientId = "{{ patient_id }}";
+
+    const monitoringLink =
+        "https://heartguard-ai-1-5puu.onrender.com/remote-monitor?patient_id="
+        + encodeURIComponent(patientId);
+
+    document.getElementById("monitoringLink").value = monitoringLink;
+}
+
+
+
+// =====================================================
+// COPY MONITORING LINK
+// =====================================================
+
+function copyMonitoringLink(){
+
+    const input =
+        document.getElementById(
+            "monitoringLink"
+        );
+
+
+    const link =
+        input.value;
+
+
+    if(!link){
+
+        document.getElementById(
+            "copyStatus"
+        ).innerText =
+            "✗ Monitoring link not available.";
+
+        return;
+    }
+
+
+    // Modern browser copy
+
+    if(
+        navigator.clipboard &&
+        window.isSecureContext
+    ){
+
+        navigator.clipboard.writeText(
+            link
+        )
+
+        .then(function(){
+
+            document.getElementById(
+                "copyStatus"
+            ).innerText =
+                "✓ Monitoring link copied successfully.";
+
+        })
+
+        .catch(function(){
+
+            fallbackCopyLink();
+
+        });
+
+    }
+
+    else{
+
+        fallbackCopyLink();
+
+    }
+
+}
+
+
+// =====================================================
+// FALLBACK COPY
+// =====================================================
+
+function fallbackCopyLink(){
+
+    const input =
+        document.getElementById(
+            "monitoringLink"
+        );
+
+
+    input.select();
+
+    input.setSelectionRange(
+        0,
+        99999
+    );
+
+
+    try{
+
+        document.execCommand(
+            "copy"
+        );
+
+
+        document.getElementById(
+            "copyStatus"
+        ).innerText =
+            "✓ Monitoring link copied successfully.";
+
+    }
+
+    catch(error){
+
+        document.getElementById(
+            "copyStatus"
+        ).innerText =
+            "Please copy the link manually.";
+
+    }
+
+}
+
+
+// =====================================================
+// LOAD REMOTE PATIENT DATA
+// =====================================================
+
 function loadRemoteData(){
 
-fetch("/health-data?patient_id={{ patient_id }}")
+    fetch(
+        "/health-data?patient_id={{ patient_id }}"
+    )
 
-.then(response => response.json())
+    .then(
+        response => response.json()
+    )
 
-.then(data => {
+    .then(
+        data => {
 
-document.getElementById("name").innerText =
-data.name;
+            // Save patient data
 
-document.getElementById("age").innerText =
-data.age;
-
-document.getElementById("sex").innerText =
-data.sex;
-
-document.getElementById("hr").innerText =
-data.heart_rate
-? data.heart_rate + " bpm"
-: "--";
-
-document.getElementById("bp").innerText =
-data.bp;
-
-document.getElementById("spo2").innerText =
-data.spo2
-? data.spo2 + " %"
-: "--";
-
-document.getElementById("temp").innerText =
-data.temperature
-? data.temperature + " °C"
-: "--";
-
-document.getElementById("resp").innerText =
-data.respiratory_rate
-? data.respiratory_rate + " /min"
-: "--";
+            patientData = data;
 
 
-let risk = Number(data.risk) || 0;
+            // =========================================
+            // PATIENT DETAILS
+            // =========================================
 
-document.getElementById("risk").innerText =
-risk + "%";
-
-document.getElementById("status").innerText =
-data.status;
-
-document.getElementById("time").innerText =
-data.time;
+            document.getElementById(
+                "name"
+            ).innerText =
+                data.name || "--";
 
 
-if(risk >= 50){
+            document.getElementById(
+                "age"
+            ).innerText =
+                data.age || "--";
 
-document.getElementById("risk").className="high";
-document.getElementById("status").className="high";
 
-}else{
+            document.getElementById(
+                "sex"
+            ).innerText =
+                data.sex || "--";
 
-document.getElementById("risk").className="low";
-document.getElementById("status").className="low";
+
+            // =========================================
+            // HEALTH VALUES
+            // =========================================
+
+            document.getElementById(
+                "hr"
+            ).innerText =
+
+                data.heart_rate
+
+                ? data.heart_rate + " bpm"
+
+                : "--";
+
+
+            document.getElementById(
+                "bp"
+            ).innerText =
+                data.bp || "--";
+
+
+            document.getElementById(
+                "spo2"
+            ).innerText =
+
+                data.spo2
+
+                ? data.spo2 + " %"
+
+                : "--";
+
+
+            document.getElementById(
+                "temp"
+            ).innerText =
+
+                data.temperature
+
+                ? data.temperature + " °C"
+
+                : "--";
+
+
+            document.getElementById(
+                "resp"
+            ).innerText =
+
+                data.respiratory_rate
+
+                ? data.respiratory_rate +
+                  " /min"
+
+                : "--";
+
+
+            // =========================================
+            // RISK
+            // =========================================
+
+            let risk =
+                Number(data.risk) || 0;
+
+
+            document.getElementById(
+                "risk"
+            ).innerText =
+                risk + "%";
+
+
+            document.getElementById(
+                "status"
+            ).innerText =
+                data.status || "WAITING";
+
+
+            document.getElementById(
+                "time"
+            ).innerText =
+                data.time || "--";
+
+
+            // =========================================
+            // RISK COLOR
+            // =========================================
+
+            if(risk >= 50){
+
+                document.getElementById(
+                    "risk"
+                ).className =
+                    "high";
+
+
+                document.getElementById(
+                    "status"
+                ).className =
+                    "high";
+
+            }
+
+            else{
+
+                document.getElementById(
+                    "risk"
+                ).className =
+                    "low";
+
+
+                document.getElementById(
+                    "status"
+                ).className =
+                    "low";
+
+            }
+
+
+            // =========================================
+            // SAVED DOCTOR RESPONSE
+            // =========================================
+
+            if(
+                data.doctor_response
+            ){
+
+                document.getElementById(
+                    "savedDoctorResponse"
+                ).innerText =
+                    data.doctor_response;
+
+
+                document.getElementById(
+                    "savedDoctorResponseTime"
+                ).innerText =
+                    "Response time: " +
+                    (
+                        data.doctor_response_time ||
+                        "--"
+                    );
+
+            }
+
+            else{
+
+                document.getElementById(
+                    "savedDoctorResponse"
+                ).innerText =
+                    "No doctor response yet.";
+
+
+                document.getElementById(
+                    "savedDoctorResponseTime"
+                ).innerText =
+                    "";
+
+            }
+
+        }
+    )
+
+    .catch(
+        error => {
+
+            console.log(
+                "Remote data error:",
+                error
+            );
+
+        }
+    );
 
 }
 
-});
 
-}
+// =====================================================
+// START LIVE MONITORING
+// =====================================================
+
+setMonitoringLink();
 
 loadRemoteData();
 
-setInterval(loadRemoteData,3000);
+
+setInterval(
+    loadRemoteData,
+    3000
+);
+
+
+// =====================================================
+// SEND DOCTOR RESPONSE
+// =====================================================
+
+function sendDoctorResponse(){
+
+    const message =
+
+        document.getElementById(
+            "doctorMessage"
+        )
+        .value
+        .trim();
+
+
+    // =========================================
+    // CHECK MESSAGE
+    // =========================================
+
+    if(!message){
+
+        alert(
+            "Please enter a doctor response."
+        );
+
+        return;
+    }
+
+
+    // =========================================
+    // CHECK PATIENT
+    // =========================================
+
+    if(
+        !patientData ||
+        !patientData.phone ||
+        patientData.phone === "--"
+    ){
+
+        document.getElementById(
+            "responseStatus"
+        ).innerText =
+            "✗ Patient WhatsApp number not available.";
+
+        return;
+    }
+
+
+    // =========================================
+    // SHOW SENDING
+    // =========================================
+
+    document.getElementById(
+        "responseStatus"
+    ).innerText =
+        "Sending doctor response...";
+
+
+    // =========================================
+    // SEND TO FLASK
+    // =========================================
+
+    fetch(
+        "/doctor-response",
+        {
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":
+                    "application/json"
+            },
+
+            body:JSON.stringify({
+
+                patient_id:
+                    "{{ patient_id }}",
+
+                message:
+                    message
+
+            })
+
+        }
+    )
+
+    .then(
+        response => response.json()
+    )
+
+    .then(
+        data => {
+
+            // =====================================
+            // SUCCESS
+            // =====================================
+
+            if(data.success){
+
+                document.getElementById(
+                    "responseStatus"
+                ).innerText =
+                    "✓ Doctor response sent to patient WhatsApp and saved.";
+
+
+                document.getElementById(
+                    "doctorMessage"
+                ).value = "";
+
+
+                // Immediately show saved response
+
+                document.getElementById(
+                    "savedDoctorResponse"
+                ).innerText =
+                    message;
+
+
+                document.getElementById(
+                    "savedDoctorResponseTime"
+                ).innerText =
+                    "Response time: " +
+                    (
+                        data.doctor_response_time ||
+                        "--"
+                    );
+
+
+                // Refresh data
+
+                loadRemoteData();
+
+            }
+
+            else{
+
+                document.getElementById(
+                    "responseStatus"
+                ).innerText =
+                    "✗ " +
+                    (
+                        data.message ||
+                        "Unable to send response."
+                    );
+
+            }
+
+        }
+    )
+
+    .catch(
+        error => {
+
+            console.log(
+                "Doctor response error:",
+                error
+            );
+
+
+            document.getElementById(
+                "responseStatus"
+            ).innerText =
+                "✗ Unable to send doctor response.";
+
+        }
+    );
+
+}
+
 
 </script>
 
+
 </body>
+
 </html>

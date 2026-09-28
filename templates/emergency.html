@@ -48,8 +48,6 @@
             margin-top: 8px;
         }
 
-        /* Emergency Status */
-
         .status-card {
             padding: 30px;
 
@@ -93,8 +91,6 @@
             color: #b8c7d8;
         }
 
-        /* Status */
-
         .status {
             display: inline-block;
 
@@ -110,8 +106,6 @@
 
             font-weight: bold;
         }
-
-        /* Health values */
 
         .health-grid {
             display: grid;
@@ -147,8 +141,6 @@
             font-size: 20px;
         }
 
-        /* Alert information */
-
         .alert-info {
             margin-top: 20px;
 
@@ -166,8 +158,6 @@
 
             color: #c5d2df;
         }
-
-        /* Back button */
 
         .back-button {
             display: block;
@@ -187,13 +177,17 @@
             text-decoration: none;
 
             font-weight: bold;
+
+            border: none;
+
+            cursor: pointer;
+
+            font-size: 15px;
         }
 
         .back-button:hover {
             background: #0d5dcc;
         }
-
-        /* Mobile */
 
         @media (max-width: 700px) {
 
@@ -331,9 +325,23 @@
         </div>
 
 
+        <!-- WhatsApp Emergency Button -->
+
+        <button
+            type="button"
+            onclick="sendWhatsAppAlert()"
+            class="back-button"
+        >
+            🚨 Send Emergency Alert via WhatsApp
+        </button>
+
+
         <!-- Back -->
 
-        <a href="/monitor" class="back-button">
+        <a
+            href="/monitor?patient_id={{ patient_id }}"
+            class="back-button"
+        >
             ← Back to Real-Time Monitoring
         </a>
 
@@ -342,206 +350,299 @@
 
     <script>
 
+        // =====================================================
+        // CURRENT PATIENT ID
+        // =====================================================
+
+        const currentPatientId = "{{ patient_id }}";
+
+
+        // =====================================================
+        // STORE CURRENT PATIENT DATA
+        // =====================================================
+
+        let currentHealthData = null;
+
+
+        // =====================================================
+        // PREVENT REPEATED WHATSAPP ALERTS
+        // =====================================================
+
+        let whatsappAlertSent = false;
+
+
+        // =====================================================
+        // CHECK EMERGENCY DATA
+        // =====================================================
+
         function checkEmergency() {
 
-            fetch("/health-data")
+            fetch(
+                "/health-data?patient_id=" +
+                encodeURIComponent(currentPatientId)
+            )
 
-                .then(response => response.json())
+            .then(response => response.json())
 
-                .then(data => {
+            .then(data => {
 
-                    // Display values
-
-                    document.getElementById("heartRate").innerText =
-                        data.heart_rate + " bpm";
-
-                    document.getElementById("spo2").innerText =
-                        data.spo2 + " %";
-
-                    document.getElementById("bloodPressure").innerText =
-                        data.bp;
-
-                    document.getElementById("temperature").innerText =
-                        data.temperature + " °C";
+                // Store latest patient data
+                currentHealthData = data;
 
 
-                    document.getElementById("lastChecked").innerText =
-                        data.time;
+                // =================================================
+                // DISPLAY HEALTH VALUES
+                // =================================================
+
+                document.getElementById("heartRate").innerText =
+                    data.heart_rate + " bpm";
+
+                document.getElementById("spo2").innerText =
+                    data.spo2 + " %";
+
+                document.getElementById("bloodPressure").innerText =
+                    data.bp;
+
+                document.getElementById("temperature").innerText =
+                    data.temperature + " °C";
+
+                document.getElementById("lastChecked").innerText =
+                    data.time;
 
 
-                    // Blood pressure
+                // =================================================
+                // BLOOD PRESSURE
+                // =================================================
+
+                let systolic = 0;
+                let diastolic = 0;
+
+                if (
+                    data.bp &&
+                    data.bp !== "--" &&
+                    data.bp.includes("/")
+                ) {
 
                     const bp =
                         data.bp.split("/");
 
-                    const systolic =
-                        parseInt(bp[0]);
+                    systolic =
+                        parseInt(bp[0]) || 0;
 
-                    const diastolic =
-                        parseInt(bp[1]);
-
-
-                    let alerts = [];
+                    diastolic =
+                        parseInt(bp[1]) || 0;
+                }
 
 
-                    // Heart rate
-
-                    if (data.heart_rate > 120) {
-
-                        alerts.push(
-                            "High Heart Rate"
-                        );
-
-                    }
+                let alerts = [];
 
 
-                    // SpO2
+                // =================================================
+                // HEART RATE
+                // =================================================
 
-                    if (data.spo2 < 90) {
+                if (Number(data.heart_rate) > 120) {
 
-                        alerts.push(
-                            "Low SpO₂"
-                        );
+                    alerts.push(
+                        "High Heart Rate"
+                    );
 
-                    }
-
-
-                    // Blood pressure
-
-                    if (
-                        systolic >= 180 ||
-                        diastolic >= 120
-                    ) {
-
-                        alerts.push(
-                            "Very High Blood Pressure"
-                        );
-
-                    }
+                }
 
 
-                    // Temperature
+                // =================================================
+                // SpO2
+                // =================================================
 
-                    if (data.temperature >= 39) {
+                if (Number(data.spo2) < 90) {
 
-                        alerts.push(
-                            "High Temperature"
-                        );
+                    alerts.push(
+                        "Low SpO₂"
+                    );
 
-                    }
-
-
-                    const statusCard =
-                        document.querySelector(".status-card");
-
-                    const icon =
-                        document.querySelector(".status-icon");
-
-                    const title =
-                        document.getElementById("statusTitle");
-
-                    const message =
-                        document.getElementById("statusMessage");
-
-                    const status =
-                        document.getElementById("status");
-
-                    const alertType =
-                        document.getElementById("alertType");
+                }
 
 
-                    // 🚨 Emergency
+                // =================================================
+                // BLOOD PRESSURE
+                // =================================================
 
-                    if (data.status === "HIGH RISK" || alerts.length > 0) {
+                if (
+                    systolic >= 180 ||
+                    diastolic >= 120
+                ) {
 
-                        statusCard.style.border =
-                            "1px solid #ff4757";
+                    alerts.push(
+                        "Very High Blood Pressure"
+                    );
 
-                        icon.style.background =
-                            "#5c1820";
+                }
 
-                        icon.style.color =
-                            "#ff4757";
 
-                        icon.innerText = "🚨";
+                // =================================================
+                // TEMPERATURE
+                // =================================================
 
-                        title.innerText =
-                            "EMERGENCY CONDITION DETECTED";
+                if (Number(data.temperature) >= 39) {
 
-                        title.style.color =
-                            "#ff4757";
+                    alerts.push(
+                        "High Temperature"
+                    );
 
-                        message.innerText =
-                            "Abnormal health parameter detected. Please seek appropriate medical attention.";
+                }
 
-                        status.style.background =
-                            "#5c1820";
 
-                        status.style.color =
-                            "#ff4757";
+                const statusCard =
+                    document.querySelector(".status-card");
 
-                        status.innerText =
-                            "● CRITICAL";
+                const icon =
+                    document.querySelector(".status-icon");
+
+                const title =
+                    document.getElementById("statusTitle");
+
+                const message =
+                    document.getElementById("statusMessage");
+
+                const status =
+                    document.getElementById("status");
+
+                const alertType =
+                    document.getElementById("alertType");
+
+
+                // =================================================
+                // CRITICAL / EMERGENCY
+                // =================================================
+
+                if (
+                    data.status === "HIGH RISK" ||
+                    alerts.length > 0
+                ) {
+
+                    statusCard.style.border =
+                        "1px solid #ff4757";
+
+                    icon.style.background =
+                        "#5c1820";
+
+                    icon.style.color =
+                        "#ff4757";
+
+                    icon.innerText =
+                        "🚨";
+
+                    title.innerText =
+                        "EMERGENCY CONDITION DETECTED";
+
+                    title.style.color =
+                        "#ff4757";
+
+                    message.innerText =
+                        "Abnormal health parameter detected. Please seek appropriate medical attention.";
+
+                    status.style.background =
+                        "#5c1820";
+
+                    status.style.color =
+                        "#ff4757";
+
+                    status.innerText =
+                        "● CRITICAL";
+
+
+                    if (alerts.length > 0) {
 
                         alertType.innerText =
                             alerts.join(" | ");
 
-                    }
-
-
-                    // Normal
-
-                    else {
-
-                        statusCard.style.border =
-                            "1px solid #294d73";
-
-                        icon.style.background =
-                            "#123c2a";
-
-                        icon.style.color =
-                            "#00e676";
-
-                        icon.innerText = "✓";
-
-                        title.innerText =
-                            "NO EMERGENCY DETECTED";
-
-                        title.style.color =
-                            "#00e676";
-
-                        message.innerText =
-                            "Patient health parameters are currently within the monitoring range.";
-
-                        status.style.background =
-                            "#123c2a";
-
-                        status.style.color =
-                            "#00e676";
-
-                        status.innerText =
-                            "● NORMAL";
+                    } else {
 
                         alertType.innerText =
-                            "No active alert";
+                            "High Risk Assessment";
 
                     }
 
-                })
 
-                .catch(error => {
+                    // =================================================
+                    // SEND WHATSAPP ONLY ONCE
+                    // =================================================
 
-                    console.log(
-                        "Health data error:",
-                        error
-                    );
+                    if (!whatsappAlertSent) {
 
-                });
+                        whatsappAlertSent = true;
+
+                        sendWhatsAppAlert(data);
+
+                    }
+
+                }
+
+
+                // =================================================
+                // NORMAL
+                // =================================================
+
+                else {
+
+                    statusCard.style.border =
+                        "1px solid #294d73";
+
+                    icon.style.background =
+                        "#123c2a";
+
+                    icon.style.color =
+                        "#00e676";
+
+                    icon.innerText =
+                        "✓";
+
+                    title.innerText =
+                        "NO EMERGENCY DETECTED";
+
+                    title.style.color =
+                        "#00e676";
+
+                    message.innerText =
+                        "Patient health parameters are currently within the monitoring range.";
+
+                    status.style.background =
+                        "#123c2a";
+
+                    status.style.color =
+                        "#00e676";
+
+                    status.innerText =
+                        "● NORMAL";
+
+                    alertType.innerText =
+                        "No active alert";
+
+
+                    // Allow WhatsApp alert again
+                    // if a new critical condition occurs
+
+                    whatsappAlertSent = false;
+
+                }
+
+            })
+
+            .catch(error => {
+
+                console.log(
+                    "Health data error:",
+                    error
+                );
+
+            });
 
         }
 
 
-        // Check every 3 seconds
+        // =====================================================
+        // CHECK EVERY 3 SECONDS
+        // =====================================================
 
         checkEmergency();
 
@@ -550,8 +651,164 @@
             3000
         );
 
+
+        // =====================================================
+        // SEND WHATSAPP CRITICAL ALERT
+        // NO LOCATION
+        // =====================================================
+
+        function sendWhatsAppAlert(data = currentHealthData) {
+
+            // If no health data is available
+            if (!data) {
+
+                alert(
+                    "Patient health data is not available yet."
+                );
+
+                return;
+
+            }
+
+
+            // =================================================
+            // WHATSAPP NUMBER
+            // =================================================
+
+            const phone = "{{ data.phone }}";
+
+            if (!phone || phone === "--") {
+               alert("Patient WhatsApp number is not available.");
+               return;
+            }
+
+            const cleanPhone = phone.toString().replace(/\D/g, "");
+
+            let whatsappNumber = "";
+
+            if (cleanPhone.length === 10) {
+
+                whatsappNumber = "91" + cleanPhone;
+
+            } else if (
+                cleanPhone.length === 12 &&
+                cleanPhone.startsWith("91")
+            ) {
+
+               whatsappNumber = cleanPhone;
+
+            } else {
+
+                alert("Invalid patient WhatsApp number.");
+                return;
+            }
+
+            
+
+
+            // =================================================
+            // PATIENT DETAILS
+            // =================================================
+
+            const name =
+                data.name || "{{ data.name }}" || "--";
+
+            const age =
+                data.age || "{{ data.age }}" || "--";
+
+
+            // =================================================
+            // HEALTH INPUT DETAILS
+            // =================================================
+
+            const heartRate =
+                data.heart_rate || "--";
+
+            const bp =
+                data.bp || "--";
+
+            const spo2 =
+                data.spo2 || "--";
+
+            const temperature =
+                data.temperature || "--";
+
+            const respiratoryRate =
+                data.respiratory_rate ||
+                data.resp_rate ||
+                "--";
+
+
+            // =================================================
+            // RISK STATUS
+            // =================================================
+
+            const risk =
+                data.status ||
+                data.risk ||
+                "CRITICAL";
+
+
+            // =================================================
+            // TREATMENT / IMMEDIATE ACTION
+            // =================================================
+
+            const treatment =
+                "Immediate medical attention is required. " +
+                "Keep the patient under observation and " +
+                "contact a doctor immediately.";
+
+
+            // =================================================
+            // WHATSAPP MESSAGE
+            // =================================================
+
+            const message =
+`🚨 HEARTGUARD AI - CRITICAL ALERT 🚨
+
+Patient Name: ${name}
+Age: ${age}
+
+INPUT DETAILS
+Heart Rate: ${heartRate} bpm
+Blood Pressure: ${bp} mmHg
+SpO₂: ${spo2} %
+Temperature: ${temperature} °C
+Respiratory Rate: ${respiratoryRate} breaths/min
+
+RISK STATUS: ${risk}
+
+TREATMENT / IMMEDIATE ACTION
+${treatment}
+
+⚠️ Please take immediate medical attention.
+
+- HeartGuard AI`;
+
+
+            // =================================================
+            // WHATSAPP URL
+            // =================================================
+
+            const whatsappURL =
+                "https://wa.me/" +
+                whatsappNumber +
+                "?text=" +
+                encodeURIComponent(message);
+
+
+            // =================================================
+            // OPEN WHATSAPP
+            // =================================================
+
+            window.location.href =
+                whatsappURL;
+
+        }
+
     </script>
 
 </body>
 
 </html>
+

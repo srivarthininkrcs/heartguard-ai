@@ -23,6 +23,7 @@ app = Flask(__name__)
 
 # =========================================================
 # TWILIO SETTINGS
+# Emergency WhatsApp alert ONLY
 # =========================================================
 
 TWILIO_SID = os.environ.get("TWILIO_SID")
@@ -41,7 +42,6 @@ client = (
 # =========================================================
 
 def init_db():
-
     conn = sqlite3.connect("database.db")
 
     conn.execute("""
@@ -66,25 +66,20 @@ init_db()
 # =========================================================
 
 latest = {
-
     "name": "--",
     "phone": "--",
     "age": "--",
     "sex": "--",
-
     "heart_rate": 0,
     "bp": "--",
     "spo2": 0,
     "temperature": 0,
     "respiratory_rate": 0,
-
     "risk": 0,
     "status": "WAITING",
     "time": "--",
-
     "doctor_response": "",
     "doctor_response_time": ""
-
 }
 
 
@@ -114,28 +109,18 @@ def format_whatsapp_number(phone):
         .replace(")", "")
     )
 
-    # +91XXXXXXXXXX
     if phone.startswith("+91"):
+        return phone
 
-        number = phone
-
-    # 91XXXXXXXXXX
     elif phone.startswith("91") and len(phone) == 12:
+        return "+" + phone
 
-        number = "+" + phone
-
-    # 10 digit Indian number
     elif len(phone) == 10 and phone.isdigit():
-
-        number = "+91" + phone
+        return "+91" + phone
 
     else:
-
         print("INVALID PHONE NUMBER:", phone)
-
         return None
-
-    return number
 
 
 # =========================================================
@@ -150,26 +135,20 @@ def send_whatsapp_alert(phone, risk):
     print("ORIGINAL PHONE:", phone)
 
     if not client:
-
         print("TWILIO CLIENT NOT CONNECTED")
         print("----------------------------------------")
-
         return False
 
     if not TWILIO_NUMBER:
-
         print("TWILIO_NUMBER NOT FOUND")
         print("----------------------------------------")
-
         return False
 
     whatsapp_number = format_whatsapp_number(phone)
 
     if not whatsapp_number:
-
         print("INVALID PATIENT PHONE NUMBER")
         print("----------------------------------------")
-
         return False
 
     print("FORMATTED PATIENT NUMBER:", whatsapp_number)
@@ -178,21 +157,13 @@ def send_whatsapp_alert(phone, risk):
     try:
 
         message = client.messages.create(
-
             from_=f"whatsapp:{TWILIO_NUMBER}",
-
             to=f"whatsapp:{whatsapp_number}",
-
             content_sid="HXb5b62575e6e4ff6129ad7c8efe1f983e",
-
             content_variables=json.dumps({
-
                 "1": datetime.now().strftime("%d/%m/%Y"),
-
                 "2": f"HeartGuard AI Risk: {risk}%"
-
             })
-
         )
 
         print("WHATSAPP SENT SUCCESSFULLY")
@@ -210,149 +181,16 @@ def send_whatsapp_alert(phone, risk):
 
 
 # =========================================================
-# SEND DOCTOR TREATMENT TO PATIENT WHATSAPP
-# =========================================================
-
-def send_doctor_response_whatsapp(patient_data, doctor_message):
-
-    # -----------------------------------------------------
-    # Validate Twilio configuration
-    # -----------------------------------------------------
-
-    if not client:
-
-        return False
-
-    if not TWILIO_NUMBER:
-
-        return False
-
-
-    # -----------------------------------------------------
-    # Validate patient WhatsApp number
-    # -----------------------------------------------------
-
-    phone = patient_data.get("phone")
-
-    whatsapp_number = format_whatsapp_number(phone)
-
-    if not whatsapp_number:
-
-        return False
-
-
-    # -----------------------------------------------------
-    # Doctor treatment message
-    # -----------------------------------------------------
-
-    doctor_message = str(
-        doctor_message
-    ).strip()
-
-    if not doctor_message:
-
-        return False
-
-
-    # -----------------------------------------------------
-    # WhatsApp Business template SID
-    # -----------------------------------------------------
-
-    treatment_content_sid = os.environ.get(
-        "TWILIO_TREATMENT_CONTENT_SID"
-    )
-
-    if not treatment_content_sid:
-
-        return False
-
-
-    # -----------------------------------------------------
-    # Template variables
-    # -----------------------------------------------------
-
-    variables = {
-
-        "1": str(
-            patient_data.get(
-                "name",
-                "--"
-            )
-        ),
-
-        "2": str(
-            patient_data.get(
-                "age",
-                "--"
-            )
-        ),
-
-        "3": (
-            f"{patient_data.get('risk', 0)}% - "
-            f"{patient_data.get('status', '--')}"
-        ),
-
-        "4": doctor_message
-
-    }
-
-
-    # -----------------------------------------------------
-    # SEND MESSAGE
-    # -----------------------------------------------------
-
-    try:
-
-        message = client.messages.create(
-
-            from_=f"whatsapp:{TWILIO_NUMBER}",
-
-            to=f"whatsapp:{whatsapp_number}",
-
-            content_sid=treatment_content_sid,
-
-            content_variables=json.dumps(
-                variables
-            )
-
-        )
-
-        return bool(
-            message and message.sid
-        )
-
-    except Exception as e:
-
-        print(
-            "DOCTOR RESPONSE WHATSAPP ERROR:",
-            str(e)
-        )
-
-        return False
-
-
-# =========================================================
 # MONITOR
 # =========================================================
 
-@app.route(
-    "/monitor",
-    methods=["GET", "POST"]
-)
+@app.route("/monitor", methods=["GET", "POST"])
 def monitor():
 
-    # Existing patient ID
-    # or create new one
-
-    patient_id = request.args.get(
-        "patient_id"
-    )
-
+    patient_id = request.args.get("patient_id")
 
     if not patient_id:
-
         patient_id = uuid.uuid4().hex
-
 
     # =====================================================
     # POST - START LIVE ASSESSMENT
@@ -360,93 +198,34 @@ def monitor():
 
     if request.method == "POST":
 
-        patient_id = request.form.get(
-            "patient_id"
-        )
-
+        patient_id = request.form.get("patient_id")
 
         if not patient_id:
-
             patient_id = uuid.uuid4().hex
-
 
         # -------------------------------------------------
         # GET FORM VALUES
         # -------------------------------------------------
 
-        name = request.form.get(
-            "name",
-            "--"
-        )
+        name = request.form.get("name", "--")
+        phone = request.form.get("phone", "--")
+        age = request.form.get("age", "--")
+        sex = request.form.get("sex", "--")
 
-        phone = request.form.get(
-            "phone",
-            "--"
-        )
-
-        age = request.form.get(
-            "age",
-            "--"
-        )
-
-        sex = request.form.get(
-            "sex",
-            "--"
-        )
-
-
-        hr = int(
-            request.form.get(
-                "heart_rate",
-                0
-            )
-        )
-
-
-        bp = request.form.get(
-            "bp",
-            "--"
-        )
-
-
-        spo2 = int(
-            request.form.get(
-                "spo2",
-                0
-            )
-        )
-
-
-        temp = float(
-            request.form.get(
-                "temperature",
-                0
-            )
-        )
-
-
-        rr = int(
-            request.form.get(
-                "respiratory_rate",
-                0
-            )
-        )
-
+        hr = int(request.form.get("heart_rate", 0))
+        bp = request.form.get("bp", "--")
+        spo2 = int(request.form.get("spo2", 0))
+        temp = float(request.form.get("temperature", 0))
+        rr = int(request.form.get("respiratory_rate", 0))
 
         # -------------------------------------------------
         # SYSTOLIC BP
         # -------------------------------------------------
 
         try:
-
-            sys_bp = int(
-                bp.split("/")[0]
-            )
-
+            sys_bp = int(bp.split("/")[0])
         except:
-
             sys_bp = 0
-
 
         # -------------------------------------------------
         # RISK CALCULATION
@@ -454,123 +233,65 @@ def monitor():
 
         risk = 0
 
-
-        # Heart rate
-
         if hr < 60 or hr > 100:
-
             risk += 20
 
-
-        # Blood pressure
-
         if sys_bp >= 140:
-
             risk += 25
 
-
-        # SpO2
-
         if spo2 < 95:
-
             risk += 30
 
-
-        # Temperature
-
         if temp < 36 or temp > 37.5:
-
             risk += 15
 
-
-        # Respiratory rate
-
         if rr < 12 or rr > 20:
-
             risk += 10
 
-
-        # Maximum risk
-
-        risk = min(
-            risk,
-            100
-        )
-
+        risk = min(risk, 100)
 
         # -------------------------------------------------
         # RISK STATUS
         # -------------------------------------------------
 
         if risk >= 50:
-
             status = "HIGH RISK"
-
         else:
-
             status = "LOW RISK"
-
 
         # -------------------------------------------------
         # CURRENT PATIENT DATA
         # -------------------------------------------------
 
         patient_data = {
-
             "name": name,
-
             "phone": phone,
-
             "age": age,
-
             "sex": sex,
-
             "heart_rate": hr,
-
             "bp": bp,
-
             "spo2": spo2,
-
             "temperature": temp,
-
             "respiratory_rate": rr,
-
             "risk": risk,
-
             "status": status,
-
-            "time": datetime.now().strftime(
-                "%H:%M:%S"
-            ),
-
-            # New doctor response fields
-
+            "time": datetime.now().strftime("%H:%M:%S"),
             "doctor_response": "",
-
             "doctor_response_time": ""
-
         }
-
 
         # -------------------------------------------------
         # UPDATE LATEST
         # -------------------------------------------------
 
         latest.clear()
-
-        latest.update(
-            patient_data
-        )
-
+        latest.update(patient_data)
 
         # -------------------------------------------------
         # SAVE PATIENT RECORD
         # -------------------------------------------------
 
-        patients_records[patient_id] = (
-            patient_data.copy()
-        )
-
+        patients_records[patient_id] = patient_data.copy()
 
         # -------------------------------------------------
         # TWILIO WHATSAPP ALERT
@@ -586,68 +307,44 @@ def monitor():
             print("PATIENT ID:", patient_id)
             print("RISK:", risk)
 
-
-            send_whatsapp_alert(
-                phone,
-                risk
-            )
-
+            send_whatsapp_alert(phone, risk)
 
         else:
 
             print("")
-            print(
-                "LOW RISK - WHATSAPP ALERT NOT SENT"
-            )
-
+            print("LOW RISK - WHATSAPP ALERT NOT SENT")
 
         # -------------------------------------------------
         # DATABASE
         # -------------------------------------------------
 
-        conn = sqlite3.connect(
-            "database.db"
-        )
-
+        conn = sqlite3.connect("database.db")
 
         conn.execute(
-
             """
             INSERT INTO patients
             (name, risk, status, time)
             VALUES (?, ?, ?, ?)
             """,
-
             (
                 name,
                 risk,
                 status,
                 patient_data["time"]
             )
-
         )
 
-
         conn.commit()
-
         conn.close()
-
 
     # -----------------------------------------------------
     # RETURN MONITOR PAGE
     # -----------------------------------------------------
 
     return render_template(
-
         "monitor.html",
-
-        data=patients_records.get(
-            patient_id,
-            latest
-        ),
-
+        data=patients_records.get(patient_id, latest),
         patient_id=patient_id
-
     )
 
 
@@ -659,11 +356,8 @@ def monitor():
 def details():
 
     return render_template(
-
         "details.html",
-
         data=latest
-
     )
 
 
@@ -674,75 +368,50 @@ def details():
 @app.route("/emergency")
 def emergency():
 
-    patient_id = request.args.get(
-        "patient_id"
-    )
-
+    patient_id = request.args.get("patient_id")
 
     data = None
 
-
     if patient_id:
-
-        data = patients_records.get(
-            patient_id
-        )
-
+        data = patients_records.get(patient_id)
 
     if data is None:
-
         data = latest
-
 
     print("----------------------------------------")
     print("EMERGENCY PAGE")
     print("PATIENT ID:", patient_id)
-    print(
-        "PATIENT PHONE:",
-        data.get("phone")
-    )
+    print("PATIENT PHONE:", data.get("phone"))
     print("----------------------------------------")
 
-
     return render_template(
-
         "emergency.html",
-
         data=data,
-
         patient_id=patient_id
-
     )
 
 
 # =========================================================
-# DOCTOR TREATMENT / RESPONSE
-# → PATIENT WHATSAPP
-# → SAVE FOR REMOTE MONITOR
+# DOCTOR RESPONSE
+# SAVE + SEND WHATSAPP
 # =========================================================
 
-@app.route(
-    "/doctor-response",
-    methods=["POST"]
-)
+@app.route("/doctor-response", methods=["POST"])
 def doctor_response():
 
-    data = request.get_json(
-        silent=True
-    ) or {}
+    # Supports JSON from remote_monitor.html
+    # and form data if used by another page.
 
+    data = request.get_json(silent=True)
 
-    patient_id = data.get(
-        "patient_id"
-    )
+    if data is None:
+        data = request.form.to_dict()
+
+    patient_id = data.get("patient_id")
 
     treatment = str(
-        data.get(
-            "message",
-            ""
-        )
+        data.get("message", "")
     ).strip()
-
 
     # -----------------------------------------------------
     # Validate patient ID
@@ -751,14 +420,9 @@ def doctor_response():
     if not patient_id:
 
         return jsonify({
-
             "success": False,
-
-            "message":
-            "Patient ID missing"
-
+            "message": "Patient ID missing"
         }), 400
-
 
     # -----------------------------------------------------
     # Validate treatment
@@ -767,125 +431,140 @@ def doctor_response():
     if not treatment:
 
         return jsonify({
-
             "success": False,
-
-            "message":
-            "Please enter treatment or medical advice"
-
+            "message": "Please enter treatment or medical advice"
         }), 400
-
 
     # -----------------------------------------------------
     # Find exact patient
     # -----------------------------------------------------
 
-    if patient_id not in patients_records:
+    patient_data = patients_records.get(patient_id)
+
+    if not patient_data:
 
         return jsonify({
-
             "success": False,
-
-            "message":
-            "Patient not found"
-
+            "message": "Patient not found"
         }), 404
 
-
-    patient_data = patients_records[
-        patient_id
-    ]
-
-
     # -----------------------------------------------------
-    # Patient WhatsApp number
+    # SAVE DOCTOR RESPONSE
     # -----------------------------------------------------
 
-    phone = patient_data.get(
-        "phone"
+    patient_data["doctor_response"] = treatment
+
+    patient_data["doctor_response_time"] = (
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     )
 
-
-    if not phone or phone == "--":
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-            "Patient WhatsApp number not available"
-
-        }), 400
-
+    patients_records[patient_id] = patient_data
 
     # -----------------------------------------------------
-    # SEND TO WHATSAPP
+    # CREATE MONITORING LINK
     # -----------------------------------------------------
 
-    whatsapp_sent = (
-        send_doctor_response_whatsapp(
-            patient_data,
-            treatment
-        )
-    )
-
-
+    monitoring_link = (
+    "https://heartguard-ai-1-5puu.onrender.com"
+    + "/remote-monitor?patient_id="
+    + str(patient_id)
+)
     # -----------------------------------------------------
-    # SAVE RESPONSE
-    # ONLY AFTER SUCCESSFUL WHATSAPP SEND
+    # PATIENT PHONE NUMBER
     # -----------------------------------------------------
 
-    if whatsapp_sent:
-
-        patient_data[
-            "doctor_response"
-        ] = treatment
-
-
-        patient_data[
-            "doctor_response_time"
-        ] = datetime.now().strftime(
-            "%H:%M:%S"
-        )
-
-
-        # Explicitly save updated record
-
-        patients_records[
-            patient_id
-        ] = patient_data
-
-
-        return jsonify({
-
-            "success": True,
-
-            "message":
-            "Doctor response sent and saved successfully",
-
-            "doctor_response":
-            treatment,
-
-            "doctor_response_time":
-            patient_data[
-                "doctor_response_time"
-            ]
-
-        })
-
+    phone = str(
+        patient_data.get("phone", "")
+    ).strip()
 
     # -----------------------------------------------------
-    # WhatsApp failed
+    # SEND WHATSAPP
+    # -----------------------------------------------------
+
+    whatsapp_sent = False
+
+    if phone:
+
+        try:
+
+            whatsapp_number = phone
+
+            # Convert 10 digit Indian number to +91
+            if whatsapp_number.startswith("0"):
+                whatsapp_number = whatsapp_number[1:]
+
+            if (
+                len(whatsapp_number) == 10
+                and whatsapp_number.isdigit()
+            ):
+                whatsapp_number = "+91" + whatsapp_number
+
+            elif (
+                whatsapp_number.startswith("91")
+                and len(whatsapp_number) == 12
+            ):
+                whatsapp_number = "+" + whatsapp_number
+
+            elif not whatsapp_number.startswith("+"):
+                whatsapp_number = "+" + whatsapp_number
+
+            whatsapp_body = (
+                "HeartGuard AI\n\n"
+                "Doctor Response:\n"
+                + treatment
+                + "\n\n"
+                "Patient Monitoring Link:\n"
+                + monitoring_link
+            )
+
+            client.messages.create(
+                from_=f"whatsapp:{TWILIO_NUMBER}",
+                to=f"whatsapp:{whatsapp_number}",
+                body=whatsapp_body
+            )
+
+            whatsapp_sent = True
+
+            print("----------------------------------------")
+            print("WHATSAPP RESPONSE SENT")
+            print("PATIENT ID:", patient_id)
+            print("PHONE:", whatsapp_number)
+            print("MONITORING LINK:", monitoring_link)
+            print("----------------------------------------")
+
+        except Exception as e:
+
+            print("----------------------------------------")
+            print("WHATSAPP SEND ERROR")
+            print("ERROR:", e)
+            print("----------------------------------------")
+
+    # -----------------------------------------------------
+    # RESPONSE
     # -----------------------------------------------------
 
     return jsonify({
 
-        "success": False,
+        "success": True,
 
         "message":
-        "Treatment was not sent to WhatsApp. Check Twilio WhatsApp configuration and approved treatment template."
+            "Doctor response saved and WhatsApp sent successfully"
+            if whatsapp_sent
+            else
+            "Doctor response saved, but WhatsApp could not be sent",
 
-    }), 500
+        "doctor_response":
+            treatment,
+
+        "doctor_response_time":
+            patient_data["doctor_response_time"],
+
+        "monitoring_link":
+            monitoring_link,
+
+        "whatsapp_sent":
+            whatsapp_sent
+    })
 
 
 # =========================================================
@@ -898,6 +577,7 @@ def health_data():
     patient_id = request.args.get("patient_id")
 
     if not patient_id:
+
         return jsonify({
             "status": "WAITING"
         })
@@ -905,6 +585,7 @@ def health_data():
     data = patients_records.get(patient_id)
 
     if not data:
+
         return jsonify({
             "name": "--",
             "phone": "--",
@@ -956,34 +637,23 @@ def remote_monitor():
 @app.route("/risk-trend")
 def risk_trend():
 
-    conn = sqlite3.connect(
-        "database.db"
-    )
-
+    conn = sqlite3.connect("database.db")
 
     rows = conn.execute(
-
         """
         SELECT risk
         FROM patients
         ORDER BY id DESC
         LIMIT 7
         """
-
     ).fetchall()
-
 
     conn.close()
 
-
-    return jsonify(
-
-        [
-            int(r[0])
-            for r in rows[::-1]
-        ]
-
-    )
+    return jsonify([
+        int(r[0])
+        for r in rows[::-1]
+    ])
 
 
 # =========================================================
@@ -993,32 +663,31 @@ def risk_trend():
 @app.route("/download-report")
 def download_report():
 
-    d = latest
+    patient_id = request.args.get("patient_id")
 
+    if patient_id:
+        d = patients_records.get(patient_id)
+    else:
+        d = latest
+
+    if not d:
+        return "Patient data not found", 404
 
     buf = BytesIO()
 
-
-    w, h = A4
-
-
     pdf = canvas.Canvas(
-
         buf,
-
         pagesize=A4
-
     )
 
+    w, h = A4
 
     # -----------------------------------------------------
     # DARK BACKGROUND
     # -----------------------------------------------------
 
     pdf.setFillColor(
-        colors.HexColor(
-            "#061426"
-        )
+        colors.HexColor("#061426")
     )
 
     pdf.rect(
@@ -1029,14 +698,11 @@ def download_report():
         fill=1
     )
 
-
     # -----------------------------------------------------
     # TITLE
     # -----------------------------------------------------
 
-    pdf.setFillColor(
-        colors.white
-    )
+    pdf.setFillColor(colors.white)
 
     pdf.setFont(
         "Helvetica-Bold",
@@ -1049,7 +715,6 @@ def download_report():
         "HEARTGUARD AI"
     )
 
-
     pdf.setFont(
         "Helvetica-Bold",
         16
@@ -1061,7 +726,6 @@ def download_report():
         "HEART RISK ASSESSMENT REPORT"
     )
 
-
     # -----------------------------------------------------
     # PATIENT
     # -----------------------------------------------------
@@ -1071,13 +735,11 @@ def download_report():
         10
     )
 
-
     pdf.drawString(
         30,
         h - 100,
         f"Patient: {d['name']}"
     )
-
 
     pdf.drawString(
         220,
@@ -1085,24 +747,19 @@ def download_report():
         f"Age: {d['age']}"
     )
 
-
     pdf.drawString(
         320,
         h - 100,
         f"Sex: {d['sex']}"
     )
 
-
     # -----------------------------------------------------
     # RISK
     # -----------------------------------------------------
 
     pdf.setFillColor(
-        colors.HexColor(
-            "#0D1D32"
-        )
+        colors.HexColor("#0D1D32")
     )
-
 
     pdf.roundRect(
         30,
@@ -1113,17 +770,12 @@ def download_report():
         fill=1
     )
 
-
-    pdf.setFillColor(
-        colors.white
-    )
-
+    pdf.setFillColor(colors.white)
 
     pdf.setFont(
         "Helvetica-Bold",
         14
     )
-
 
     pdf.drawString(
         50,
@@ -1131,34 +783,24 @@ def download_report():
         "AI Risk Prediction"
     )
 
-
-    risk = int(
-        d["risk"]
-    )
-
+    risk = int(d["risk"])
 
     pdf.setFont(
         "Helvetica-Bold",
         32
     )
 
-
     if risk >= 50:
 
         pdf.setFillColor(
-            colors.HexColor(
-                "#FF4757"
-            )
+            colors.HexColor("#FF4757")
         )
 
     else:
 
         pdf.setFillColor(
-            colors.HexColor(
-                "#00E676"
-            )
+            colors.HexColor("#00E676")
         )
-
 
     pdf.drawString(
         100,
@@ -1166,12 +808,10 @@ def download_report():
         f"{risk}%"
     )
 
-
     pdf.setFont(
         "Helvetica-Bold",
         13
     )
-
 
     pdf.drawString(
         100,
@@ -1179,21 +819,16 @@ def download_report():
         d["status"]
     )
 
-
     # -----------------------------------------------------
     # HEALTH PARAMETERS
     # -----------------------------------------------------
 
-    pdf.setFillColor(
-        colors.white
-    )
-
+    pdf.setFillColor(colors.white)
 
     pdf.setFont(
         "Helvetica-Bold",
         13
     )
-
 
     pdf.drawString(
         310,
@@ -1201,30 +836,20 @@ def download_report():
         "Health Parameters"
     )
 
-
     pdf.setFont(
         "Helvetica",
         10
     )
 
-
     y = h - 165
 
-
     vitals = [
-
         f"Heart Rate: {d['heart_rate']} bpm",
-
         f"Blood Pressure: {d['bp']}",
-
         f"SpO2: {d['spo2']} %",
-
         f"Temperature: {d['temperature']} C",
-
         f"Respiratory Rate: {d['respiratory_rate']} /min"
-
     ]
-
 
     for item in vitals:
 
@@ -1236,21 +861,16 @@ def download_report():
 
         y -= 18
 
-
     # -----------------------------------------------------
     # HEART IMAGE
     # -----------------------------------------------------
 
-    pdf.setFillColor(
-        colors.white
-    )
-
+    pdf.setFillColor(colors.white)
 
     pdf.setFont(
         "Helvetica-Bold",
         13
     )
-
 
     pdf.drawString(
         55,
@@ -1258,53 +878,34 @@ def download_report():
         "3D Heart Visualization"
     )
 
-
     heart = os.path.join(
-
         app.root_path,
-
         "static",
-
         "heart3d.png"
-
     )
-
 
     if os.path.exists(heart):
 
         pdf.drawImage(
-
             ImageReader(heart),
-
             55,
-
             300,
-
             width=170,
-
             height=170,
-
             preserveAspectRatio=True,
-
             mask="auto"
-
         )
-
 
     # -----------------------------------------------------
     # ECG
     # -----------------------------------------------------
 
-    pdf.setFillColor(
-        colors.white
-    )
-
+    pdf.setFillColor(colors.white)
 
     pdf.setFont(
         "Helvetica-Bold",
         13
     )
-
 
     pdf.drawString(
         310,
@@ -1312,83 +913,52 @@ def download_report():
         "Key Risk Factors"
     )
 
-
     pdf.drawString(
         260,
         440,
         "Live ECG Monitor"
     )
 
-
     pdf.setStrokeColor(
-        colors.HexColor(
-            "#00E676"
-        )
+        colors.HexColor("#00E676")
     )
-
 
     pdf.setLineWidth(2)
 
-
     path = pdf.beginPath()
-
 
     for i in range(300):
 
         x = 260 + i
-
         p = i % 60
-
-        y = 400
-
+        y_ecg = 400
 
         if 20 <= p < 25:
-
-            y = 425
-
+            y_ecg = 425
 
         elif 25 <= p < 30:
-
-            y = 375
-
+            y_ecg = 375
 
         elif 30 <= p < 35:
-
-            y = 415
-
+            y_ecg = 415
 
         if i == 0:
-
-            path.moveTo(
-                x,
-                y
-            )
-
+            path.moveTo(x, y_ecg)
         else:
-
-            path.lineTo(
-                x,
-                y
-            )
-
+            path.lineTo(x, y_ecg)
 
     pdf.drawPath(path)
-
 
     # -----------------------------------------------------
     # SUGGESTIONS
     # -----------------------------------------------------
 
-    pdf.setFillColor(
-        colors.white
-    )
-
+    pdf.setFillColor(colors.white)
 
     pdf.setFont(
         "Helvetica-Bold",
         13
     )
-
 
     pdf.drawString(
         30,
@@ -1396,12 +966,10 @@ def download_report():
         "AI Suggestions"
     )
 
-
     pdf.setFont(
         "Helvetica",
         10
     )
-
 
     pdf.drawString(
         40,
@@ -1409,20 +977,17 @@ def download_report():
         "Regular health monitoring"
     )
 
-
     pdf.drawString(
         40,
         222,
         "Maintain balanced nutrition"
     )
 
-
     pdf.drawString(
         40,
         204,
         "Adequate rest and hydration"
     )
-
 
     # -----------------------------------------------------
     # ALERT
@@ -1433,19 +998,16 @@ def download_report():
         13
     )
 
-
     pdf.drawString(
         30,
         165,
         "Recent Alert"
     )
 
-
     pdf.setFont(
         "Helvetica",
         10
     )
-
 
     pdf.drawString(
         40,
@@ -1453,28 +1015,22 @@ def download_report():
         d["status"]
     )
 
-
     pdf.drawString(
         40,
         128,
         f"Last Assessment: {d['time']}"
     )
 
-
     # -----------------------------------------------------
     # RISK TREND
     # -----------------------------------------------------
 
-    pdf.setFillColor(
-        colors.white
-    )
-
+    pdf.setFillColor(colors.white)
 
     pdf.setFont(
         "Helvetica-Bold",
         13
     )
-
 
     pdf.drawString(
         310,
@@ -1482,176 +1038,121 @@ def download_report():
         "Risk Trend"
     )
 
-
-    conn = sqlite3.connect(
-        "database.db"
-    )
-
+    conn = sqlite3.connect("database.db")
 
     rows = conn.execute(
-
         """
         SELECT risk
         FROM patients
         ORDER BY id DESC
         LIMIT 7
         """
-
     ).fetchall()
-
 
     conn.close()
 
-
-    v = [
-
+    values = [
         int(x[0])
-
         for x in rows[::-1]
-
     ]
-
 
     pdf.setFont(
         "Helvetica",
         7
     )
 
+    for n in range(0, 101, 25):
 
-    pdf.setFillColor(
-        colors.white
-    )
-
-
-    for n in range(
-        0,
-        101,
-        25
-    ):
-
-        y = 45 + n * 0.9
-
+        y_graph = 45 + n * 0.9
 
         pdf.setStrokeColor(
-            colors.HexColor(
-                "#244A70"
-            )
+            colors.HexColor("#244A70")
         )
-
 
         pdf.line(
             300,
-            y,
+            y_graph,
             555,
-            y
+            y_graph
         )
 
+        pdf.setFillColor(colors.white)
 
         pdf.drawString(
             280,
-            y - 2,
+            y_graph - 2,
             f"{n}%"
         )
-
 
     # -----------------------------------------------------
     # TREND GRAPH
     # -----------------------------------------------------
 
-    if v:
+    if values:
 
         path = pdf.beginPath()
 
-
         path.moveTo(
             305,
-            45 + v[0] * 0.9
+            45 + values[0] * 0.9
         )
 
-
-        for i in range(
-            1,
-            len(v)
-        ):
+        for i in range(1, len(values)):
 
             path.lineTo(
-
                 305 + i * 38,
-
-                45 + v[i] * 0.9
-
+                45 + values[i] * 0.9
             )
-
 
         pdf.setStrokeColor(
-            colors.HexColor(
-                "#FF4757"
-            )
+            colors.HexColor("#FF4757")
         )
-
 
         pdf.setLineWidth(3)
 
-
         pdf.drawPath(path)
 
-
-        for i, value in enumerate(v):
+        for i, value in enumerate(values):
 
             x = 305 + i * 38
-
-            y = 45 + value * 0.9
-
+            y_graph = 45 + value * 0.9
 
             pdf.setFillColor(
-                colors.HexColor(
-                    "#FF4757"
-                )
+                colors.HexColor("#FF4757")
             )
-
 
             pdf.circle(
                 x,
-                y,
+                y_graph,
                 4,
                 fill=1
             )
 
-
-            pdf.setFillColor(
-                colors.white
-            )
-
+            pdf.setFillColor(colors.white)
 
             pdf.setFont(
                 "Helvetica-Bold",
                 8
             )
 
-
             pdf.drawString(
                 x - 8,
-                y + 8,
+                y_graph + 8,
                 f"{value}%"
             )
-
 
     # -----------------------------------------------------
     # FOOTER
     # -----------------------------------------------------
 
     pdf.setFillColor(
-        colors.HexColor(
-            "#00E676"
-        )
+        colors.HexColor("#00E676")
     )
-
 
     pdf.setFont(
         "Helvetica-Bold",
         9
     )
-
 
     pdf.drawString(
         30,
@@ -1659,23 +1160,15 @@ def download_report():
         "HeartGuard AI • Smart Heart Monitoring"
     )
 
-
     pdf.save()
-
 
     buf.seek(0)
 
-
     return send_file(
-
         buf,
-
         as_attachment=True,
-
         download_name="HeartGuard_AI_Report.pdf",
-
         mimetype="application/pdf"
-
     )
 
 
@@ -1688,38 +1181,27 @@ def home():
 
     patient_id = uuid.uuid4().hex
 
-
     blank_data = {
-
         "name": "--",
         "phone": "--",
         "age": "--",
         "sex": "--",
-
         "heart_rate": 0,
         "bp": "--",
         "spo2": 0,
         "temperature": 0,
         "respiratory_rate": 0,
-
         "risk": 0,
         "status": "WAITING",
         "time": "--",
-
         "doctor_response": "",
         "doctor_response_time": ""
-
     }
 
-
     return render_template(
-
         "monitor.html",
-
         data=blank_data,
-
         patient_id=patient_id
-
     )
 
 
@@ -1730,43 +1212,25 @@ def home():
 @app.route("/dashboard")
 def dashboard():
 
-    total = len(
-        patients_records
-    )
-
+    total = len(patients_records)
 
     high = sum(
-
         1
-
         for p in patients_records.values()
-
         if p["status"] == "HIGH RISK"
-
     )
-
 
     low = sum(
-
         1
-
         for p in patients_records.values()
-
         if p["status"] == "LOW RISK"
-
     )
 
-
     return render_template(
-
         "dashboard.html",
-
         total=total,
-
         high=high,
-
         low=low
-
     )
 
 
@@ -1777,16 +1241,11 @@ def dashboard():
 if __name__ == "__main__":
 
     app.run(
-
         host="0.0.0.0",
-
         port=int(
-
             os.environ.get(
                 "PORT",
                 5000
             )
-
         )
-
     )

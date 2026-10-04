@@ -717,23 +717,35 @@ Waiting for doctor's response...
 </a>
 
 
-
 <!-- ============================= -->
-<!-- REMOTE MONITORING -->
+<!-- PATIENT MONITORING LINK -->
 <!-- ============================= -->
 
-<a
-    href="/remote-monitor?patient_id={{ patient_id }}"
-    target="_blank"
-    class="dashboard-btn"
->
+<div class="iot">
 
-🌐 REMOTE PATIENT MONITORING
+    <h2>🔗 Patient Monitoring Link</h2>
 
-</a>
+    <p>
+        Copy this link and send it to the doctor through WhatsApp.
+    </p>
+
+    <input
+        type="text"
+        id="monitoringLink"
+        readonly
+        style="margin-top:10px;"
+    >
+
+    <button
+        type="button"
+        onclick="copyMonitoringLink()"
+    >
+        🔗 COPY MONITORING LINK
+    </button>
 
 
 </div>
+
 
 
 
@@ -743,6 +755,18 @@ Waiting for doctor's response...
 
 <script>
 
+function setMonitoringLink() {
+
+    const patientId = "{{ patient_id }}";
+
+    const monitoringLink =
+        window.location.origin +
+        "/remote-monitor?patient_id=" +
+        encodeURIComponent(patientId);
+
+    document.getElementById("monitoringLink").value =
+        monitoringLink;
+}
 
 function updateData(){
 
@@ -952,22 +976,103 @@ else{
 
 }
 
+function copyMonitoringLink() {
+
+    const linkBox =
+        document.getElementById("monitoringLink");
+
+    const link = linkBox.value;
+
+    if (!link) {
+        alert("Monitoring link is not available.");
+        return;
+    }
+
+    if (
+        navigator.clipboard &&
+        window.isSecureContext
+    ) {
+
+        navigator.clipboard.writeText(link)
+        .then(function () {
+
+            alert(
+                "✓ Monitoring link copied successfully."
+            );
+
+        })
+        .catch(function () {
+
+            fallbackCopy(link);
+
+        });
+
+    } else {
+
+        fallbackCopy(link);
+
+    }
+}
+
+
+function fallbackCopy(link) {
+
+    const textArea =
+        document.createElement("textarea");
+
+    textArea.value = link;
+
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+
+    document.body.appendChild(textArea);
+
+    textArea.focus();
+    textArea.select();
+
+    try {
+
+        const copied =
+            document.execCommand("copy");
+
+        if (copied) {
+
+            alert(
+                "✓ Monitoring link copied successfully."
+            );
+
+        } else {
+
+            alert(
+                "Copy failed. Please copy the link manually."
+            );
+
+        }
+
+    } catch (error) {
+
+        alert(
+            "Copy failed. Please copy the link manually."
+        );
+
+    }
+
+    document.body.removeChild(textArea);
+}
+
 
 /* ============================= */
 /* INITIAL UPDATE */
 /* ============================= */
 
-updateData();
+setMonitoringLink(); 
+updateData(); 
 
-
-/* ============================= */
-/* UPDATE EVERY 3 SECONDS */
-/* ============================= */
-
-setInterval(
-    updateData,
-    3000
+setInterval( 
+    updateData, 
+    3000 
 );
+
 
 
 </script>

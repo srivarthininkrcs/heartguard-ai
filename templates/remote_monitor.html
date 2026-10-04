@@ -722,19 +722,19 @@ let patientData = {};
 // SET MONITORING LINK
 // =====================================================
 
-
 function setMonitoringLink() {
 
     const patientId = "{{ patient_id }}";
 
     const monitoringLink =
-        "https://heartguard-ai-1-5puu.onrender.com/remote-monitor?patient_id="
-        + encodeURIComponent(patientId);
+        window.location.origin +
+        "/remote-monitor?patient_id=" +
+        encodeURIComponent(patientId);
 
-    document.getElementById("monitoringLink").value = monitoringLink;
+    document.getElementById(
+        "monitoringLink"
+    ).value = monitoringLink;
 }
-
-
 
 // =====================================================
 // COPY MONITORING LINK
